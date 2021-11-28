@@ -1,0 +1,72 @@
+using Amazon.S3;
+using Core;
+using Core.Entity;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
+using System;
+
+namespace FilesShareApi
+{
+    public class Startup
+    {
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+            
+        public IConfiguration Configuration { get; }
+
+        public void ConfigureServices(IServiceCollection services)
+        {
+            //Database Configuration
+            services.Configure<FilesShareApiDbConfig>(Configuration);
+            services.AddSingleton<IDbClient, DbClient>();
+            services.AddTransient<IFileService, FileService>();
+
+            //AWS S3 services
+            services.AddAWSService<IAmazonS3>();
+            services.AddSingleton<IAmazonS3, AmazonS3Client>();
+
+            //Identity Configuration
+            services.AddIdentity<ApplicationUser, ApplicationRole>()  
+                .AddMongoDbStores<ApplicationUser, ApplicationRole, Guid>
+                (
+                    Configuration.GetSection("CONNECTION_STRING").Value, "FileShareData"
+                );
+
+            services.AddControllers();
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "FilesShareApi", Version = "v1" });
+            });
+        }
+
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "FilesShareApi v1"));
+            }
+
+            app.UseHttpsRedirection();
+            app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
+        }
+    }
+}
