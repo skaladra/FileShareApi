@@ -2,10 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
-using System;
-using Core.Entity;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 
 namespace FilesShareApi.Controllers 
 {
@@ -25,6 +22,7 @@ namespace FilesShareApi.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> CreateUser([Required] UserEntity userInst)
         {
+            if (this.User.Identity.IsAuthenticated) return Ok("You are already registered");
             var user = new ApplicationUser
             {
                 UserName = userInst.Name,

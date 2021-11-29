@@ -1,5 +1,4 @@
-﻿using Core.Entity;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -26,7 +25,7 @@ namespace FilesShareApi.Controllers
            IdentityResult result = await roleManager.CreateAsync(new ApplicationRole() { Name = name });
            if (result.Succeeded)
                return Ok($"Role {name} Created Successfully");
-            return Ok(result.Errors);
+            return StatusCode(400, result.Errors);
         }
 
     }

@@ -1,8 +1,6 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.S3.Transfer;
-using Core;
-using Core.Entity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -44,7 +42,7 @@ namespace FilesShareApi.Controllers
 
         [HttpPost("uploadFile")]
         [Authorize]
-        public async Task<IActionResult> UploadFile(IFormFile file)
+        public async Task<IActionResult> UploadFile(IFormFile file, bool deleteOnceDownload)
         {
             try
             {
@@ -70,6 +68,7 @@ namespace FilesShareApi.Controllers
                     Id = documentId,
                     Name = file.FileName,
                     CreatedTime = DateTime.Now,
+                    DeleteAfterDownload = deleteOnceDownload,
                     S3Name = documentNameS3,
                     DocumentType = file.ContentType,
                     CreatorId = this.User.FindFirstValue(ClaimTypes.NameIdentifier)
@@ -99,13 +98,39 @@ namespace FilesShareApi.Controllers
         [HttpDelete]
         [Authorize]
         [Route("deleteFile")]
-        public IActionResult DeleteFile(string id)
+        public async Task<IActionResult> DeleteFile(string id)
         {
-            var fileName = fileServices.DeleteFile(id);
-            return Ok($"file {fileName} was successfully deleted");
+            var fileToDelete = fileServices.DeleteFile(id, this.User.FindFirstValue(ClaimTypes.NameIdentifier));
+            if (fileToDelete == null)
+            {
+                return NotFound();
+            }
+            try
+            {
+                var fileTransferUtility = new TransferUtility(s3Client);
+                await fileTransferUtility.S3Client.DeleteObjectAsync(new DeleteObjectRequest()
+                {
+                    BucketName = bucketName,
+                    Key = fileToDelete.S3Name
+                });
+            }
+            catch (AmazonS3Exception amazonS3Exception)
+            {
+                if (amazonS3Exception.ErrorCode != null
+                    && (amazonS3Exception.ErrorCode.Equals("InvalidAccessKeyId") || amazonS3Exception.ErrorCode.Equals("InvalidSecurity")))
+                {
+                    throw new Exception("Check the provided AWS Credentials.");
+                }
+                else
+                {
+                    throw new Exception("Error occurred: " + amazonS3Exception.Message);
+                }
+            }
+            return Ok($"file {fileToDelete.Name} was successfully deleted");
         }
 
         [HttpGet("download")] 
+        [AllowAnonymous]
         public async Task<IActionResult> DownloadFile(string id)
         { 
             try
@@ -123,7 +148,7 @@ namespace FilesShareApi.Controllers
                 {
                     return NotFound();
                 }
-
+                if (file.DeleteAfterDownload) await DeleteFile(file.Id);
                 return File(objectResponse.ResponseStream, objectResponse.Headers.ContentType, file.Name);
             }
             catch(AmazonS3Exception amazonS3Exception)
