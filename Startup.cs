@@ -23,7 +23,7 @@ namespace FilesShareApi
         public IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
-        {
+        { 
             //Database Configuration
             services.Configure<FilesShareApiDbConfig>(Configuration);
             services.AddSingleton<IDbClient, DbClient>();
@@ -34,11 +34,23 @@ namespace FilesShareApi
             services.AddSingleton<IAmazonS3, AmazonS3Client>();
 
             //Identity Configuration
-            services.AddIdentity<ApplicationUser, ApplicationRole>()  
+            services.AddControllersWithViews();
+            services.AddIdentity<ApplicationUser, ApplicationRole>(config =>
+            {
+                config.Password.RequireNonAlphanumeric = false;
+                config.Password.RequiredLength = 8;
+            })  
                 .AddMongoDbStores<ApplicationUser, ApplicationRole, Guid>
                 (
                     Configuration.GetSection("CONNECTION_STRING").Value, "FileShareData"
                 );
+
+            services.ConfigureApplicationCookie(config =>
+            {
+                config.Cookie.Name = "Api.Identity.Cookie";
+                config.LoginPath = "/login"; 
+            }
+            );
 
             services.AddControllers();
 
@@ -62,6 +74,7 @@ namespace FilesShareApi
 
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseStatusCodePagesWithRedirects("/error?code={404}");
 
             app.UseEndpoints(endpoints =>
             {

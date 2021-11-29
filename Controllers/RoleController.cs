@@ -1,16 +1,14 @@
 ﻿using Core.Entity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace FilesShareApi.Controllers
 {
     [ApiController]
-    [Route("Role")]
+    [Route("roles")]
     public class RoleController : ControllerBase
     {
         private readonly RoleManager<ApplicationRole> roleManager;
@@ -20,7 +18,8 @@ namespace FilesShareApi.Controllers
             this.roleManager = roleManager;
         }
 
-        [HttpPost("CreateRole")]
+        [HttpPost("createRole")]
+        [Authorize]
         public async Task<IActionResult> CreateRole([Required] string name)
         {
 
