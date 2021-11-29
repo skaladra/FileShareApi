@@ -45,6 +45,9 @@ namespace FilesShareApi
         /// </summary>
         public string DocumentType { get; set; }
 
+        /// <summary>
+        /// Name on S3 storage
+        /// </summary>
         public string S3Name { get; set; }
     }
 }

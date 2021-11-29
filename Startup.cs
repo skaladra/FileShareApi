@@ -51,6 +51,7 @@ namespace FilesShareApi
             );
 
             services.AddControllers();
+            services.AddRouting();
 
             services.AddSwaggerGen(c =>
             {

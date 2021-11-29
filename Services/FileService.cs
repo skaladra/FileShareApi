@@ -14,12 +14,23 @@ namespace FilesShareApi
             files = dbClient.GetFilesCollection();
         }
 
+        /// <summary>
+        /// Gets lists of files that user has
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public List<FileEntity> GetFiles(string id)
         {
             var filter = new BsonDocument("CreatorId", id);
             return files.Find(filter).ToList();
         }
 
+        /// <summary>
+        /// Deletes file created by user by it's id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="creatorId"></param>
+        /// <returns></returns>
         public FileEntity DeleteFile(string id, string creatorId)
         {
             var filter = new BsonDocument("_id", id);
