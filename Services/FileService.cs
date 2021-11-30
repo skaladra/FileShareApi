@@ -21,8 +21,7 @@ namespace FilesShareApi
         /// <returns></returns>
         public List<FileEntity> GetFiles(string id)
         {
-            var filter = new BsonDocument("CreatorId", id);
-            return files.Find(filter).ToList();
+            return files.Find(file => file.CreatorId == id).ToList();
         }
 
         /// <summary>
@@ -33,7 +32,6 @@ namespace FilesShareApi
         /// <returns></returns>
         public FileEntity DeleteFile(string id, string creatorId)
         {
-            var filter = new BsonDocument("_id", id);
             var file = files.FindOneAndDelete( file => file.CreatorId == creatorId && file.Id == id);
             return file;
 
@@ -41,16 +39,24 @@ namespace FilesShareApi
 
         public FileEntity GetFileById(string id)
         {
-            var filter = new BsonDocument("_id", id);
-            return files.Find(filter).First();
+            return files.Find(file => file.Id == id).First();
         }
 
         public string AddFile(FileEntity file)
         {
-
             files.InsertOne(file);
             return file.Id;
         }
 
+        public List<FileEntity> GetFilesToDelete()
+        {
+            return files.Find(file => file.ToDelete == true).ToList();
+        }
+
+        public void SetFileToDelete(FileEntity file)
+        {
+            var filter = new BsonDocument("_id", file.Id);
+            files.ReplaceOneAsync(filter, file);
+        }
     }
 }

@@ -1,4 +1,6 @@
 using Amazon.S3;
+using FilesShareApi.FilesCleaner;
+using FilesShareApi.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -32,7 +34,6 @@ namespace FilesShareApi
             services.AddSingleton<IAmazonS3, AmazonS3Client>();
 
             //Identity Configuration
-            services.AddControllersWithViews();
             services.AddIdentity<ApplicationUser, ApplicationRole>(config =>
             {
                 config.Password.RequireNonAlphanumeric = false;
@@ -52,6 +53,10 @@ namespace FilesShareApi
 
             services.AddControllers();
             services.AddRouting();
+
+            //Files manager Configuraton
+            services.AddSingleton<FilesManager>();
+            services.AddSingleton<IHostedService, FIleCleanServices>();
 
             services.AddSwaggerGen(c =>
             {

@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Routing;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -85,13 +84,12 @@ namespace FilesShareApi.Controllers
                     Id = documentId,
                     Name = file.FileName,
                     Url = urlHelper.Replace(this.Url.ActionLink(), $"/files/download?id={documentId}"),
-                    //Url = this.Url.ActionLink("files", "download", new { id = documentId}),
-                    //Url = this.Request.Scheme + $"edit\files?id={documentId}",
                     CreatedTime = DateTime.Now,
                     DeleteAfterDownload = deleteOnceDownload,
                     CreatorId = this.User.FindFirstValue(ClaimTypes.NameIdentifier),
                     DocumentType = file.ContentType,
-                    S3Name = documentNameS3
+                    S3Name = documentNameS3,
+                    ToDelete = false
                 };
                 var fileName = fileServices.AddFile(fileInst);
 
@@ -149,6 +147,18 @@ namespace FilesShareApi.Controllers
             return Ok($"file {fileToDelete.Name} was successfully deleted");
         }
 
+        [HttpDelete("deleteFile/all")]
+        [Authorize]
+        public async Task<IActionResult> deleteAllFiles()
+        {
+            var filesToDelete = fileServices.GetFiles(this.User.FindFirstValue(ClaimTypes.NameIdentifier));
+            foreach (var file in filesToDelete)
+            {
+                await DeleteFile(file.Id);
+            }
+            return Ok("All your files have been deleted");
+        }
+
         [HttpGet("download")] 
         [AllowAnonymous]
         public async Task<IActionResult> DownloadFile(string id)
@@ -168,7 +178,21 @@ namespace FilesShareApi.Controllers
                 {
                     return NotFound();
                 }
-                if (file.DeleteAfterDownload) await DeleteFile(file.Id);
+
+                if (file.DeleteAfterDownload)
+                {
+                    fileServices.SetFileToDelete(new FileEntity
+                    {
+                        Id = file.Id,
+                        Name = file.Name,
+                        Url = null,
+                        DeleteAfterDownload = true,
+                        CreatorId = null,
+                        DocumentType = null,
+                        S3Name = file.S3Name,
+                        ToDelete = true
+                    });
+                }
                 return File(objectResponse.ResponseStream, objectResponse.Headers.ContentType, file.Name);
             }
             catch(AmazonS3Exception amazonS3Exception)

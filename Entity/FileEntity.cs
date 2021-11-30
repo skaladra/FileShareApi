@@ -49,5 +49,10 @@ namespace FilesShareApi
         /// Name on S3 storage
         /// </summary>
         public string S3Name { get; set; }
+
+        /// <summary>
+        /// Should file be deleted by files cleaner
+        /// </summary>
+        public bool ToDelete { get; set; }
     }
 }

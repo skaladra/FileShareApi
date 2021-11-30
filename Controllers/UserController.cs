@@ -39,7 +39,6 @@ namespace FilesShareApi.Controllers
 
         [HttpPost("login")]
         [AllowAnonymous]
-        //[ValidateAntiForgeryToken]
         public async Task<IActionResult> Login([Required][EmailAddress] string email, [Required] string password)
         {
             ApplicationUser appUser = await userManager.FindByEmailAsync(email);
