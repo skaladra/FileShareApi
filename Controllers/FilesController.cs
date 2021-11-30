@@ -36,6 +36,10 @@ namespace FilesShareApi.Controllers
             this.userManager = userManager;
         }
 
+        /// <summary>
+        /// Get files of user
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("getFiles")]
         [Authorize]
         public IActionResult GetFiles()
@@ -55,6 +59,12 @@ namespace FilesShareApi.Controllers
             return Ok(filesListDto);
         }
 
+        /// <summary>
+        /// upload new file
+        /// </summary>
+        /// <param name="file">file instance</param>
+        /// <param name="deleteOnceDownload">defines whether the file should be deleted after download</param>
+        /// <returns></returns>
         [HttpPost("uploadFile")]
         [Authorize]
         public async Task<IActionResult> UploadFile(IFormFile file, bool deleteOnceDownload = false)
@@ -113,6 +123,11 @@ namespace FilesShareApi.Controllers
 
         }
 
+        /// <summary>
+        /// Delete file by it's identifier
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete]
         [Authorize]
         [Route("deleteFile")]

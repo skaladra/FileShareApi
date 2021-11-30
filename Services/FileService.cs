@@ -1,6 +1,5 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
-using System;
 using System.Collections.Generic;
 
 namespace FilesShareApi
@@ -17,7 +16,7 @@ namespace FilesShareApi
         /// <summary>
         /// Gets lists of files that user has
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">file's identifier </param>
         /// <returns></returns>
         public List<FileEntity> GetFiles(string id)
         {
@@ -25,10 +24,10 @@ namespace FilesShareApi
         }
 
         /// <summary>
-        /// Deletes file created by user by it's id
+        /// Deletes file created by user by it's identifier 
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="creatorId"></param>
+        /// <param name="id">file's identifier </param>
+        /// <param name="creatorId">author's id</param>
         /// <returns></returns>
         public FileEntity DeleteFile(string id, string creatorId)
         {
@@ -36,23 +35,40 @@ namespace FilesShareApi
             return file;
 
         }
-
+        /// <summary>
+        /// Find file by identifier  
+        /// </summary>
+        /// <param name="id">file's identifier </param>
+        /// <returns></returns>
         public FileEntity GetFileById(string id)
         {
             return files.Find(file => file.Id == id).First();
         }
 
+        /// <summary>
+        /// Add file reference to database
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
         public string AddFile(FileEntity file)
         {
             files.InsertOne(file);
             return file.Id;
         }
 
-        public List<FileEntity> GetFilesToDelete()
-        {
-            return files.Find(file => file.ToDelete == true).ToList();
+        /// <summary>
+        /// Get list of files that were marked to be deleted
+        /// </summary>
+        /// <returns></returns>
+        public List<FileEntity> GetFilesToDelete() 
+        { 
+            return files.Find(file => file.ToDelete == true).ToList(); 
         }
 
+        /// <summary>
+        /// Mark file to be deleted
+        /// </summary>
+        /// <param name="file"></param>
         public void SetFileToDelete(FileEntity file)
         {
             var filter = new BsonDocument("_id", file.Id);

@@ -17,8 +17,13 @@ namespace FilesShareApi.Controllers
             this.roleManager = roleManager;
         }
 
+        /// <summary>
+        /// Create new application role. Allowed to administation right users only
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         [HttpPost("createRole")]
-        [Authorize]
+        [Authorize("Admin")]
         public async Task<IActionResult> CreateRole([Required] string name)
         {
 

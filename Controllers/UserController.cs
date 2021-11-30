@@ -19,24 +19,35 @@ namespace FilesShareApi.Controllers
             this.signInManager = signInManager;
         }
 
+        /// <summary>
+        /// Creates new user
+        /// </summary>
+        /// <param name="userToCreate">instance of UserEntity</param>
+        /// <returns></returns>
         [HttpPost("register")]
-        public async Task<IActionResult> CreateUser([Required] UserEntity userInst)
+        public async Task<IActionResult> CreateUser([Required] UserEntity userToCreate)
         {
             if (this.User.Identity.IsAuthenticated) return Ok("You are already registered");
             var user = new ApplicationUser
             {
-                UserName = userInst.Name,
-                Email = userInst.Email
+                UserName = userToCreate.Name,
+                Email = userToCreate.Email
             };
 
-            IdentityResult result = await userManager.CreateAsync(user, userInst.Password);
+            IdentityResult result = await userManager.CreateAsync(user, userToCreate.Password);
             if (result.Succeeded)
             {
-                return Ok($"User {userInst.Name} Created Successfully");
+                return Ok($"User {userToCreate.Name} Created Successfully");
             }
             return StatusCode(400, $"Registration Failed: {result.Errors}");
         }
 
+        /// <summary>
+        /// log in with email and password
+        /// </summary>
+        /// <param name="email"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
         [HttpPost("login")]
         [AllowAnonymous]
         public async Task<IActionResult> Login([Required][EmailAddress] string email, [Required] string password)

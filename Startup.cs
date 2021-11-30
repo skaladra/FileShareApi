@@ -3,8 +3,6 @@ using FilesShareApi.FilesCleaner;
 using FilesShareApi.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -56,7 +54,7 @@ namespace FilesShareApi
 
             //Files manager Configuraton
             services.AddSingleton<FilesManager>();
-            services.AddSingleton<IHostedService, FIleCleanServices>();
+            services.AddSingleton<IHostedService, ScheduledServices>();
 
             services.AddSwaggerGen(c =>
             {

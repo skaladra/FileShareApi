@@ -1,5 +1,4 @@
-﻿using MongoDB.Bson;
-using MongoDbGenericRepository.Attributes;
+﻿using MongoDbGenericRepository.Attributes;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 
@@ -10,7 +9,7 @@ namespace FilesShareApi
     public class FileEntity
     {
         /// <summary>
-        /// Guid converted to srting
+        /// File's identifier 
         /// </summary>
         [BsonId]
         public string Id { get; set; }
