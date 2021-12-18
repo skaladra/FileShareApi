@@ -22,7 +22,7 @@ namespace FilesShareApi.Controllers
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        [HttpPost("createRole")]
+        [HttpPost]
         [Authorize("Admin")]
         public async Task<IActionResult> CreateRole([Required] string name)
         {

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\SecretSWeb\\FilesShareApi\\FilesShareApi.csproj": {}
+    "C:\\Studies\\CsharpWeb\\CurrentProject\\FilesShareApi.csproj": {}
   },
   "projects": {
-    "C:\\SecretSWeb\\FilesShareApi\\FilesShareApi.csproj": {
+    "C:\\Studies\\CsharpWeb\\CurrentProject\\FilesShareApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\SecretSWeb\\FilesShareApi\\FilesShareApi.csproj",
+        "projectUniqueName": "C:\\Studies\\CsharpWeb\\CurrentProject\\FilesShareApi.csproj",
         "projectName": "FilesShareApi",
-        "projectPath": "C:\\SecretSWeb\\FilesShareApi\\FilesShareApi.csproj",
+        "projectPath": "C:\\Studies\\CsharpWeb\\CurrentProject\\FilesShareApi.csproj",
         "packagesPath": "C:\\Users\\КомиссаровАлексейЕвг\\.nuget\\packages\\",
-        "outputPath": "C:\\SecretSWeb\\FilesShareApi\\obj\\",
+        "outputPath": "C:\\Studies\\CsharpWeb\\CurrentProject\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\КомиссаровАлексейЕвг\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -79,7 +79,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.403\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.404\\RuntimeIdentifierGraph.json"
         }
       }
     }
