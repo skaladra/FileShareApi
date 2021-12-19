@@ -30,6 +30,7 @@ namespace FilesShareApi
             //AWS S3 services
             services.AddAWSService<IAmazonS3>();
             services.AddSingleton<IAmazonS3, AmazonS3Client>();
+            services.AddSingleton<IS3Service, S3Service>();
 
             //Identity Configuration
             services.AddIdentity<ApplicationUser, ApplicationRole>(config =>

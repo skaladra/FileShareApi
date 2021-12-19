@@ -1,16 +1,12 @@
-﻿using Amazon.S3;
-using Amazon.S3.Model;
-using Amazon.S3.Transfer;
-using FilesShareApi.Entity;
+﻿using FilesShareApi.Entity;
+using FilesShareApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Claims;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace FilesShareApi.Controllers
@@ -21,19 +17,12 @@ namespace FilesShareApi.Controllers
     public class FilesController : ControllerBase
     {
         private readonly IFileService fileServices;
-        private readonly IAmazonS3 s3Client;
-        private readonly UserManager<ApplicationUser> userManager;
+        private readonly IS3Service s3Service;
 
-        /// <summary>
-        /// Name of my bucket
-        /// </summary>
-        private readonly string bucketName = "secretsharingbucket";
-
-        public FilesController(IFileService fileServices, IAmazonS3 s3Client, UserManager<ApplicationUser> userManager)
+        public FilesController(IFileService fileServices, IS3Service s3Service)
         {
             this.fileServices = fileServices;
-            this.s3Client = s3Client;
-            this.userManager = userManager;
+            this.s3Service = s3Service;
         }
 
         /// <summary>
@@ -67,59 +56,44 @@ namespace FilesShareApi.Controllers
         /// <returns></returns>
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> UploadFile(IFormFile file, bool deleteOnceDownload = false)
+        public IActionResult UploadFile(IFormFile file, bool deleteOnceDownload = false)
         {
+            var fileId = Guid.NewGuid().ToString();
+            var fileNameS3 = fileId + Path.GetExtension(file.FileName);
+
             try
             {
-                await using var newMemoryStream = new MemoryStream();
-                await file.CopyToAsync(newMemoryStream);
-
-                var fileExtension = Path.GetExtension(file.FileName);
-                var documentId = Guid.NewGuid().ToString();
-                var documentNameS3 = documentId + fileExtension;
-
-                var result = $"https://secretsharingbucket.s3.amazonaws.com/{documentNameS3}";
-
-                var uploadRequest = new TransferUtilityUploadRequest
-                {
-                    InputStream = newMemoryStream,
-                    Key = documentNameS3,
-                    BucketName = bucketName,
-                    CannedACL = S3CannedACL.PublicRead,
-                };
+                s3Service.UploadFileToS3(file, fileNameS3);
+                var downloadUrl = this.Url.ActionLink() + $"/download?id={fileId}";
+                var createdTime = DateTime.Now;
 
                 var fileInst = new FileEntity
                 {
-                    Id = documentId,
+                    Id = fileId,
                     Name = file.FileName,
-                    Url = this.Url.ActionLink() + $"/download?id={documentId}",
-                    CreatedTime = DateTime.Now,
+                    Url = downloadUrl,
+                    CreatedTime = createdTime,
                     DeleteAfterDownload = deleteOnceDownload,
                     CreatorId = this.User.FindFirstValue(ClaimTypes.NameIdentifier),
                     DocumentType = file.ContentType,
-                    S3Name = documentNameS3,
+                    S3Name = fileNameS3,
                     ToDelete = false
                 };
                 var fileName = fileServices.AddFile(fileInst);
 
-                var fileTransferUtility = new TransferUtility(s3Client);
-                await fileTransferUtility.UploadAsync(uploadRequest);
+                var fileResponse = new FileResponseEntity
+                {
+                    Id = fileId,
+                    Name = fileName,
+                    Url = downloadUrl,
+                    CreatedTime = createdTime
+                };
+                return Ok(fileResponse);
             }
-
-            catch (AmazonS3Exception amazonS3Exception)
+            catch (Exception)
             {
-                if (amazonS3Exception.ErrorCode != null
-                    && (amazonS3Exception.ErrorCode.Equals("InvalidAccessKeyId") || amazonS3Exception.ErrorCode.Equals("InvalidSecurity")))
-                {
-                    throw new Exception("Check the provided AWS Credentials.");
-                }
-                else
-                {
-                    throw new Exception("Error occurred:" + amazonS3Exception.Message);
-                }
+                return StatusCode(500);
             }
-            return Ok($"File {file.FileName} was successfully uploaded");
-
         }
 
         /// <summary>
@@ -129,7 +103,7 @@ namespace FilesShareApi.Controllers
         /// <returns></returns>
         [HttpDelete]
         [Authorize]
-        public async Task<IActionResult> DeleteFile(string id)
+        public IActionResult DeleteFile(string id)
         {
             var fileToDelete = fileServices.DeleteFile(id, this.User.FindFirstValue(ClaimTypes.NameIdentifier));
             if (fileToDelete == null)
@@ -138,59 +112,37 @@ namespace FilesShareApi.Controllers
             }
             try
             {
-                var fileTransferUtility = new TransferUtility(s3Client);
-                await fileTransferUtility.S3Client.DeleteObjectAsync(new DeleteObjectRequest()
-                {
-                    BucketName = bucketName,
-                    Key = fileToDelete.S3Name
-                });
+                s3Service.DeleteFileFromS3(fileToDelete.S3Name);
             }
-            catch (AmazonS3Exception amazonS3Exception)
+            catch (Exception)
             {
-                if (amazonS3Exception.ErrorCode != null
-                    && (amazonS3Exception.ErrorCode.Equals("InvalidAccessKeyId") || amazonS3Exception.ErrorCode.Equals("InvalidSecurity")))
-                {
-                    throw new Exception("Check the provided AWS Credentials.");
-                }
-                else
-                {
-                    throw new Exception("Error occurred: " + amazonS3Exception.Message);
-                }
+                return StatusCode(500);
             }
             return Ok($"file {fileToDelete.Name} was successfully deleted");
         }
 
         [HttpDelete("all")]
         [Authorize]
-        public async Task<IActionResult> deleteAllFiles()
+        public IActionResult deleteAllFiles()
         {
             var filesToDelete = fileServices.GetFiles(this.User.FindFirstValue(ClaimTypes.NameIdentifier));
             foreach (var file in filesToDelete)
             {
-                await DeleteFile(file.Id);
+                DeleteFile(file.Id);
             }
-            return Ok("All your files have been deleted");
+            return Ok($"All your files({filesToDelete.Count}) have been deleted");
         }
 
         [HttpGet("download")] 
         [AllowAnonymous]
         public async Task<IActionResult> DownloadFile(string id)
-        { 
+        {
+            var file = fileServices.GetFileById(id);
+            if (file == null)
+                return NotFound();
             try
             {
-                var file = fileServices.GetFileById(id);
-                var fileTransferUtitlity = new TransferUtility(s3Client);
-
-                var objectResponse = await fileTransferUtitlity.S3Client.GetObjectAsync(new GetObjectRequest()
-                {
-                    BucketName = bucketName,
-                    Key = file.S3Name
-                });
-
-                if (objectResponse.ResponseStream == null)
-                {
-                    return NotFound();
-                }
+                var objectResponse = await s3Service.DownloadFileFromS3(file.S3Name);
 
                 if (file.DeleteAfterDownload)
                 {
@@ -208,17 +160,9 @@ namespace FilesShareApi.Controllers
                 }
                 return File(objectResponse.ResponseStream, objectResponse.Headers.ContentType, file.Name);
             }
-            catch(AmazonS3Exception amazonS3Exception)
+            catch(Exception)
             {
-                if (amazonS3Exception.ErrorCode != null
-                    && (amazonS3Exception.ErrorCode.Equals("InvalidAccessKeyId") || amazonS3Exception.ErrorCode.Equals("InvalidSecurity")))
-                {
-                    throw new Exception("Check the provided AWS Credentials.");
-                }
-                else
-                {
-                    throw new Exception("Error occurred: " + amazonS3Exception.Message);
-                }
+                return StatusCode(500);
             }
         }
     }

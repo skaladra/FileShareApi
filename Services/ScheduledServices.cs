@@ -23,7 +23,7 @@ namespace FilesShareApi.Services
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                await filesManager.DeleteUselessFiles(cancellationToken);
+                filesManager.DeleteUselessFiles(cancellationToken);
                 await Task.Delay(TimeSpan.FromMinutes(10), cancellationToken);
             }
         }
