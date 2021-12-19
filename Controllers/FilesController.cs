@@ -77,7 +77,6 @@ namespace FilesShareApi.Controllers
                 var fileExtension = Path.GetExtension(file.FileName);
                 var documentId = Guid.NewGuid().ToString();
                 var documentNameS3 = documentId + fileExtension;
-                Regex urlHelper = new Regex(@"\/\w*\/\w*$");
 
                 var result = $"https://secretsharingbucket.s3.amazonaws.com/{documentNameS3}";
 
@@ -93,7 +92,7 @@ namespace FilesShareApi.Controllers
                 {
                     Id = documentId,
                     Name = file.FileName,
-                    Url = urlHelper.Replace(this.Url.ActionLink(), $"/files/download?id={documentId}"),
+                    Url = this.Url.ActionLink() + $"/download?id={documentId}",
                     CreatedTime = DateTime.Now,
                     DeleteAfterDownload = deleteOnceDownload,
                     CreatorId = this.User.FindFirstValue(ClaimTypes.NameIdentifier),
