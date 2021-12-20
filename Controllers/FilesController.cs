@@ -90,9 +90,9 @@ namespace FilesShareApi.Controllers
                 };
                 return Ok(fileResponse);
             }
-            catch (Exception)
+            catch (Exception exception)
             {
-                return StatusCode(500);
+                return StatusCode(500, exception.InnerException); 
             }
         }
 
@@ -114,9 +114,9 @@ namespace FilesShareApi.Controllers
             {
                 s3Service.DeleteFileFromS3(fileToDelete.S3Name);
             }
-            catch (Exception)
+            catch (Exception exception)
             {
-                return StatusCode(500);
+                return StatusCode(500, exception.InnerException);
             }
             return Ok($"file {fileToDelete.Name} was successfully deleted");
         }
