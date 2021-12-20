@@ -133,6 +133,12 @@ namespace FilesShareApi.Controllers
             return Ok($"All your files({filesToDelete.Count}) have been deleted");
         }
 
+        /// <summary>
+        /// Download file by it's identifier
+        /// Sets useless files to delete by FilesCleaner
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("download")] 
         [AllowAnonymous]
         public async Task<IActionResult> DownloadFile(string id)

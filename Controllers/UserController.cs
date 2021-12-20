@@ -25,6 +25,7 @@ namespace FilesShareApi.Controllers
         /// <param name="userToCreate">instance of UserEntity</param>
         /// <returns></returns>
         [HttpPost("register")]
+        [AllowAnonymous]
         public async Task<IActionResult> CreateUser([Required] UserEntity userToCreate)
         {
             if (this.User.Identity.IsAuthenticated) return Ok("You are already registered");
@@ -37,7 +38,12 @@ namespace FilesShareApi.Controllers
             IdentityResult result = await userManager.CreateAsync(user, userToCreate.Password);
             if (result.Succeeded)
             {
+                var curUser = await userManager.FindByEmailAsync(userToCreate.Email);
+
+                await signInManager.SignInAsync(curUser, false);
+
                 return Ok($"User {userToCreate.Name} Created Successfully");
+
             }
             return StatusCode(400, $"Registration Failed: {result.Errors}");
         }
@@ -70,6 +76,22 @@ namespace FilesShareApi.Controllers
         {
             await signInManager.SignOutAsync();
             return Ok("You have successfully logged out");
+        }
+
+        [HttpDelete]
+        [Route ("delete")]
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+            var userToDelete = await userManager.FindByIdAsync(id);
+            if (userToDelete != null)
+            {
+                var result = await userManager.DeleteAsync(userToDelete);
+                if (result.Succeeded)
+                {
+                    return Ok();
+                }
+            }
+            return StatusCode(404, "User not found");
         }
 
     }

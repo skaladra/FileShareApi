@@ -5,24 +5,25 @@ namespace FilesShareApi
 {
     public class DbClient : IDbClient
     {
-        private readonly IMongoCollection<FileEntity> files;
-        private readonly IMongoCollection<ApplicationUser> users;
+        private readonly IMongoDatabase dataBase;
+        private readonly string filesConnectionName;
+        private readonly string usersConnectionName;
 
         public DbClient(IOptions<FilesShareApiDbConfig> filesDbConfig)
         {
             var client = new MongoClient(filesDbConfig.Value.Connection_String);
-            var dataBase = client.GetDatabase(filesDbConfig.Value.Database_Name);
-            files = dataBase.GetCollection<FileEntity>(filesDbConfig.Value.Files_Collection_Name);
-            users = dataBase.GetCollection<ApplicationUser>(filesDbConfig.Value.Users_Collection_Name);
+            dataBase = client.GetDatabase(filesDbConfig.Value.Database_Name);
+            filesConnectionName = filesDbConfig.Value.Files_Collection_Name;
+            usersConnectionName = filesDbConfig.Value.Users_Collection_Name;
         }
         public IMongoCollection<FileEntity> GetFilesCollection()
         {
-            return files;
+            return dataBase.GetCollection<FileEntity>(filesConnectionName);
         }
 
         public IMongoCollection<ApplicationUser> GetUsersCollection()
         {
-            return users;
+            return dataBase.GetCollection<ApplicationUser>(usersConnectionName);
         }
     }
 }
