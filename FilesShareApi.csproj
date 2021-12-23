@@ -8,7 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="S3Client.cs" />
   </ItemGroup>
 
   <ItemGroup>
