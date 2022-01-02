@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using FilesShareApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -10,11 +11,29 @@ namespace FilesShareApi.Controllers
     [Route("roles")]
     public class RoleController : ControllerBase
     {
-        private readonly RoleManager<RoleEntity> roleManager;
+        private readonly IRoleService roleService;
 
-        public RoleController(RoleManager<RoleEntity> roleManager)
+        public RoleController(IRoleService roleService)
         {
-            this.roleManager = roleManager;
+            this.roleService = roleService;
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public IActionResult GetRoles()
+        {
+            var roles = roleService.GetRoles();
+            return Ok(roles);
+        }
+
+        [HttpPut("add/user")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AddUserToRole(string id, string role)
+        {
+            var result = await roleService.AddUserToRole(id, role);
+            if (result.Succeeded)
+                return Ok();
+            return StatusCode(400, result.Errors);
         }
 
         /// <summary>
@@ -23,11 +42,11 @@ namespace FilesShareApi.Controllers
         /// <param name="name"></param>
         /// <returns></returns>
         [HttpPost]
-        //[Authorize("Admin")]
+        [Authorize(Roles= "Admin")]
         public async Task<IActionResult> CreateRole([Required] string name)
         {
-
-           IdentityResult result = await roleManager.CreateAsync(new RoleEntity() { Name = name });
+           
+           var result = await roleService.CreateRole(name);
            if (result.Succeeded)
                return Ok($"Role {name} Created Successfully");
             return StatusCode(400, result.Errors);

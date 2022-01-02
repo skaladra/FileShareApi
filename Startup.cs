@@ -42,6 +42,8 @@ namespace FilesShareApi
                 (
                     Configuration.GetSection("CONNECTION_STRING").Value, "FileShareData"
                 );
+            services.AddTransient<IRoleService, RoleService>();
+            services.AddTransient<IUserService, UserService>();
 
             services.ConfigureApplicationCookie(config =>
             {

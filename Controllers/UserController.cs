@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
+using FilesShareApi.Services;
 
 namespace FilesShareApi.Controllers 
 {
@@ -10,13 +11,11 @@ namespace FilesShareApi.Controllers
     [Route("users")]
     public class UserController : ControllerBase
     {
-        private UserManager<UserEntity> userManager;
-        private SignInManager<UserEntity> signInManager;
+        private readonly IUserService userService;
 
-        public UserController(UserManager<UserEntity> userManager, SignInManager<UserEntity> signInManager)
+        public UserController(IUserService userService)
         {
-            this.userManager = userManager;
-            this.signInManager = signInManager;
+            this.userService = userService;
         }
 
         /// <summary>
@@ -29,21 +28,17 @@ namespace FilesShareApi.Controllers
         public async Task<IActionResult> CreateUser([Required] UserDto userToCreate)
         {
             if (this.User.Identity.IsAuthenticated) return Ok("You are already registered");
-            var user = new UserEntity
+            var newUser = new UserEntity
             {
                 UserName = userToCreate.Name,
                 Email = userToCreate.Email
             };
-
-            IdentityResult result = await userManager.CreateAsync(user, userToCreate.Password);
+            var result = await userService.CreateUser(newUser, userToCreate.Password);
             if (result.Succeeded)
             {
-                var curUser = await userManager.FindByEmailAsync(userToCreate.Email);
-
-                await signInManager.SignInAsync(curUser, false);
-
+                var user = await userService.FindByEmail(userToCreate.Email);
+                await Login(user.Email, userToCreate.Password);
                 return Ok($"User {userToCreate.Name} Created Successfully");
-
             }
             return StatusCode(400, $"Registration Failed: {result.Errors}");
         }
@@ -58,13 +53,13 @@ namespace FilesShareApi.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Login([Required][EmailAddress] string email, [Required] string password)
         {
-            UserEntity appUser = await userManager.FindByEmailAsync(email);
-            if (appUser != null)
+            UserEntity user = await userService.FindByEmail(email);
+            if (user != null)
             {
-                Microsoft.AspNetCore.Identity.SignInResult result = await signInManager.PasswordSignInAsync(appUser, password, false, false);
+                var result = await userService.Login(user, password);
                 if (result.Succeeded)
                 {
-                    return Ok($"Welcome, {appUser.UserName}");
+                    return Ok($"Welcome, {user.UserName}");
                 }
             }
             return StatusCode(401, "Login Failed: Invalid Email or Password");
@@ -74,18 +69,18 @@ namespace FilesShareApi.Controllers
         [Route ("logout")]
         public async Task<IActionResult> LogOut()
         {
-            await signInManager.SignOutAsync();
-            return Ok("You have successfully logged out");
+            userService.Logout();
+            return Ok();
         }
 
         [HttpDelete]
         [Route ("delete")]
         public async Task<IActionResult> DeleteUser(string id)
         {
-            var userToDelete = await userManager.FindByIdAsync(id);
+            var userToDelete = await userService.FindById(id);
             if (userToDelete != null)
             {
-                var result = await userManager.DeleteAsync(userToDelete);
+                var result = await userService.DeleteUser(userToDelete);
                 if (result.Succeeded)
                 {
                     return Ok();
