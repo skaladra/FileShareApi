@@ -33,11 +33,13 @@ namespace FilesShareApi.Controllers
         [Authorize]
         public IActionResult GetFiles()
         {
-            var filesList = fileServices.GetFiles(this.User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var filesListDto = new List<FileResponseEntity>();
+            var user = this.User;
+            if (user == null) return StatusCode(404);
+            var filesList = fileServices.GetFiles(user.FindFirstValue(ClaimTypes.NameIdentifier));
+            var filesListDto = new List<FileDto>();
             foreach (var file in filesList)
             {
-                filesListDto.Add(new FileResponseEntity
+                filesListDto.Add(new FileDto
                 {
                     Id = file.Id,
                     Name = file.Name,
@@ -81,7 +83,7 @@ namespace FilesShareApi.Controllers
                 };
                 var fileName = fileServices.AddFile(fileInst);
 
-                var fileResponse = new FileResponseEntity
+                var fileResponse = new FileDto
                 {
                     Id = fileId,
                     Name = fileName,

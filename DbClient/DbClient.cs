@@ -21,9 +21,9 @@ namespace FilesShareApi
             return dataBase.GetCollection<FileEntity>(filesConnectionName);
         }
 
-        public IMongoCollection<ApplicationUser> GetUsersCollection()
+        public IMongoCollection<UserEntity> GetUsersCollection()
         {
-            return dataBase.GetCollection<ApplicationUser>(usersConnectionName);
+            return dataBase.GetCollection<UserEntity>(usersConnectionName);
         }
     }
 }

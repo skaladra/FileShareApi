@@ -4,8 +4,8 @@ using AspNetCore.Identity.MongoDbCore.Models;
 
 namespace FilesShareApi
 {
-    [CollectionName("Users")]
-    public class ApplicationUser : MongoIdentityUser<Guid>
+    [CollectionName("Roles")]
+    public class RoleEntity : MongoIdentityRole<Guid>
     {
     }
 }

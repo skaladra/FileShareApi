@@ -1,26 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using MongoDbGenericRepository.Attributes;
+using System;
+using AspNetCore.Identity.MongoDbCore.Models;
 
 namespace FilesShareApi
 {
-    public class UserEntity
+    [CollectionName("Users")]
+    public class UserEntity : MongoIdentityUser<Guid>
     {
-        /// <summary>
-        /// Username
-        /// </summary>
-        [Required]
-        public string Name { get; set; }
-
-        /// <summary>
-        /// Email for login
-        /// </summary>
-        [Required]
-        [EmailAddress(ErrorMessage = "Invalid Email")]
-        public string Email { get; set; }
-
-        /// <summary>
-        /// User password
-        /// </summary>
-        [Required]
-        public string Password { get; set; }
     }
 }

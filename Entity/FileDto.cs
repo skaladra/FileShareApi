@@ -5,7 +5,7 @@ namespace FilesShareApi.Entity
     /// <summary>
     /// A class to response not all file fields
     /// </summary>
-    public class FileResponseEntity
+    public class FileDto
     {
 
         public string Id { get; set; }

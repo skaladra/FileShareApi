@@ -10,10 +10,10 @@ namespace FilesShareApi.Controllers
     [Route("users")]
     public class UserController : ControllerBase
     {
-        private UserManager<ApplicationUser> userManager;
-        private SignInManager<ApplicationUser> signInManager;
+        private UserManager<UserEntity> userManager;
+        private SignInManager<UserEntity> signInManager;
 
-        public UserController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public UserController(UserManager<UserEntity> userManager, SignInManager<UserEntity> signInManager)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
@@ -26,10 +26,10 @@ namespace FilesShareApi.Controllers
         /// <returns></returns>
         [HttpPost("register")]
         [AllowAnonymous]
-        public async Task<IActionResult> CreateUser([Required] UserEntity userToCreate)
+        public async Task<IActionResult> CreateUser([Required] UserDto userToCreate)
         {
             if (this.User.Identity.IsAuthenticated) return Ok("You are already registered");
-            var user = new ApplicationUser
+            var user = new UserEntity
             {
                 UserName = userToCreate.Name,
                 Email = userToCreate.Email
@@ -58,7 +58,7 @@ namespace FilesShareApi.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Login([Required][EmailAddress] string email, [Required] string password)
         {
-            ApplicationUser appUser = await userManager.FindByEmailAsync(email);
+            UserEntity appUser = await userManager.FindByEmailAsync(email);
             if (appUser != null)
             {
                 Microsoft.AspNetCore.Identity.SignInResult result = await signInManager.PasswordSignInAsync(appUser, password, false, false);

@@ -5,6 +5,6 @@ namespace FilesShareApi
     public interface IDbClient
     {
         IMongoCollection<FileEntity> GetFilesCollection();
-        IMongoCollection<ApplicationUser> GetUsersCollection();
+        IMongoCollection<UserEntity> GetUsersCollection();
     }
 }
