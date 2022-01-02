@@ -33,12 +33,12 @@ namespace FilesShareApi
             services.AddSingleton<IS3Service, S3Service>();
 
             //Identity Configuration
-            services.AddIdentity<ApplicationUser, ApplicationRole>(config =>
+            services.AddIdentity<UserEntity, RoleEntity>(config =>
             {
                 config.Password.RequireNonAlphanumeric = false;
                 config.Password.RequiredLength = 8;
             })  
-                .AddMongoDbStores<ApplicationUser, ApplicationRole, Guid>
+                .AddMongoDbStores<UserEntity, RoleEntity, Guid>
                 (
                     Configuration.GetSection("CONNECTION_STRING").Value, "FileShareData"
                 );
