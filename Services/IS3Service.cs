@@ -8,7 +8,7 @@ namespace FilesShareApi.Services
     {
         public void DeleteFileFromS3(string key);
 
-        public void UploadFileToS3(IFormFile file, string key);
+        public void UploadFileToS3(byte[] file, string key);
 
         public Task<GetObjectResponse> DownloadFileFromS3(string key);
     }

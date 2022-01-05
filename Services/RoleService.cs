@@ -20,15 +20,21 @@ namespace FilesShareApi.Services
         public async Task<IdentityResult> AddUserToRole(string id, string role)
         {
             var user = await userManager.FindByIdAsync(id);
-            if (user == null)
+
+            if (user == null) 
+            {
                 return IdentityResult.Failed();
+            }
+
             var result = await userManager.AddToRoleAsync(user, role);
+
             return result;
         }
 
         public async Task<IdentityResult> CreateRole(string role)
         {
             var result = await roleManager.CreateAsync(new RoleEntity() { Name = role });
+
             return result;
         }
 

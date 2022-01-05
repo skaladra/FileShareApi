@@ -32,6 +32,7 @@ namespace FilesShareApi
         public FileEntity DeleteFile(string id, string creatorId)
         {
             var file = files.FindOneAndDelete( file => file.CreatorId == creatorId && file.Id == id);
+
             return file;
 
         }
@@ -53,6 +54,7 @@ namespace FilesShareApi
         public string AddFile(FileEntity file)
         {
             files.InsertOne(file);
+
             return file.Id;
         }
 
@@ -72,6 +74,7 @@ namespace FilesShareApi
         public void SetFileToDelete(FileEntity file)
         {
             var filter = new BsonDocument("_id", file.Id);
+
             files.ReplaceOneAsync(filter, file);
         }
     }

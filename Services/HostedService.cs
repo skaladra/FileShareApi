@@ -28,6 +28,7 @@ namespace FilesShareApi.FilesCleaner
             cts.Cancel();
 
             await Task.WhenAny(executingTask, Task.Delay(-1, cancellationToken));
+
             cancellationToken.ThrowIfCancellationRequested();
         }
 

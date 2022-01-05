@@ -24,6 +24,7 @@ namespace FilesShareApi.Services
             while (!cancellationToken.IsCancellationRequested)
             {
                 filesManager.DeleteUselessFiles(cancellationToken);
+
                 await Task.Delay(TimeSpan.FromMinutes(10), cancellationToken);
             }
         }

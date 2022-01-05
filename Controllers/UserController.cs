@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
@@ -27,19 +26,28 @@ namespace FilesShareApi.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> CreateUser([Required] UserDto userToCreate)
         {
-            if (this.User.Identity.IsAuthenticated) return Ok("You are already registered");
+            if (this.User.Identity.IsAuthenticated)
+            {
+                return Ok("You are already registered");
+            }
+
             var newUser = new UserEntity
             {
                 UserName = userToCreate.Name,
                 Email = userToCreate.Email
             };
+
             var result = await userService.CreateUser(newUser, userToCreate.Password);
+
             if (result.Succeeded)
             {
                 var user = await userService.FindByEmail(userToCreate.Email);
+
                 await Login(user.Email, userToCreate.Password);
+
                 return Ok($"User {userToCreate.Name} Created Successfully");
             }
+
             return StatusCode(400, $"Registration Failed: {result.Errors}");
         }
 
@@ -54,22 +62,26 @@ namespace FilesShareApi.Controllers
         public async Task<IActionResult> Login([Required][EmailAddress] string email, [Required] string password)
         {
             UserEntity user = await userService.FindByEmail(email);
+
             if (user != null)
             {
                 var result = await userService.Login(user, password);
+
                 if (result.Succeeded)
                 {
                     return Ok($"Welcome, {user.UserName}");
                 }
             }
+
             return StatusCode(401, "Login Failed: Invalid Email or Password");
         }
 
         [HttpPost]
         [Route ("logout")]
-        public async Task<IActionResult> LogOut()
+        public IActionResult LogOut()
         {
             userService.Logout();
+
             return Ok();
         }
 
@@ -78,14 +90,17 @@ namespace FilesShareApi.Controllers
         public async Task<IActionResult> DeleteUser(string id)
         {
             var userToDelete = await userService.FindById(id);
+
             if (userToDelete != null)
             {
                 var result = await userService.DeleteUser(userToDelete);
+
                 if (result.Succeeded)
                 {
                     return Ok();
                 }
             }
+
             return StatusCode(404, "User not found");
         }
 

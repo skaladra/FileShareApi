@@ -20,30 +20,35 @@ namespace FilesShareApi.Services
         public async Task<IdentityResult> CreateUser(UserEntity user, string password)
         {
             IdentityResult result = await userManager.CreateAsync(user, password);
+
             return result;
         }
 
         public async Task<IdentityResult> DeleteUser(UserEntity user)
         {
             var result = await userManager.DeleteAsync(user);
+
             return result;
         }
 
         public async Task<UserEntity> FindByEmail(string email)
         {
             var user = await userManager.FindByEmailAsync(email);
+
             return user;
         }
 
         public async Task<UserEntity> FindById(string id)
         {
             var user = await userManager.FindByIdAsync(id);
+
             return user;
         }
 
         public async Task<SignInResult> Login(UserEntity user, string password)
         {
             var result = await signInManager.PasswordSignInAsync(user, password, false, false);
+
             return result;
         }
 

@@ -18,11 +18,13 @@ namespace FilesShareApi.Controllers
     {
         private readonly IFileService fileServices;
         private readonly IS3Service s3Service;
+        private readonly ICryptoService cryptoService;
 
-        public FilesController(IFileService fileServices, IS3Service s3Service)
+        public FilesController(IFileService fileServices, IS3Service s3Service, ICryptoService cryptoService)
         {
             this.fileServices = fileServices;
             this.s3Service = s3Service;
+            this.cryptoService = cryptoService;
         }
 
         /// <summary>
@@ -34,9 +36,16 @@ namespace FilesShareApi.Controllers
         public IActionResult GetFiles()
         {
             var user = this.User;
-            if (user == null) return StatusCode(404);
+
+            if (user == null)
+            {
+                return StatusCode(404);
+            } 
+
             var filesList = fileServices.GetFiles(user.FindFirstValue(ClaimTypes.NameIdentifier));
+
             var filesListDto = new List<FileDto>();
+
             foreach (var file in filesList)
             {
                 filesListDto.Add(new FileDto
@@ -47,6 +56,7 @@ namespace FilesShareApi.Controllers
                     CreatedTime = file.CreatedTime
                 });
             }
+
             return Ok(filesListDto);
         }
 
@@ -58,15 +68,27 @@ namespace FilesShareApi.Controllers
         /// <returns></returns>
         [HttpPost]
         [Authorize]
-        public IActionResult UploadFile(IFormFile file, bool deleteOnceDownload = false)
+        public async Task<IActionResult> UploadFile(IFormFile file, bool deleteOnceDownload = false)
         {
+            byte[] byteFile;
+
+            await using (var memoryStream = new MemoryStream())
+            {
+                await file.CopyToAsync(memoryStream);
+
+                byteFile = memoryStream.ToArray();
+            }
+
             var fileId = Guid.NewGuid().ToString();
+
             var fileNameS3 = fileId + Path.GetExtension(file.FileName);
 
             try
             {
-                s3Service.UploadFileToS3(file, fileNameS3);
+                s3Service.UploadFileToS3(byteFile, fileNameS3);
+
                 var downloadUrl = this.Url.ActionLink() + $"/download?id={fileId}";
+
                 var createdTime = DateTime.Now;
 
                 var fileInst = new FileEntity
@@ -81,6 +103,7 @@ namespace FilesShareApi.Controllers
                     S3Name = fileNameS3,
                     ToDelete = false
                 };
+
                 var fileName = fileServices.AddFile(fileInst);
 
                 var fileResponse = new FileDto
@@ -90,8 +113,10 @@ namespace FilesShareApi.Controllers
                     Url = downloadUrl,
                     CreatedTime = createdTime
                 };
+
                 return Ok(fileResponse);
             }
+
             catch (Exception exception)
             {
                 return StatusCode(500, exception.InnerException); 
@@ -108,14 +133,17 @@ namespace FilesShareApi.Controllers
         public IActionResult DeleteFile(string id)
         {
             var fileToDelete = fileServices.DeleteFile(id, this.User.FindFirstValue(ClaimTypes.NameIdentifier));
+
             if (fileToDelete == null)
             {
                 return NotFound();
             }
+
             try
             {
                 s3Service.DeleteFileFromS3(fileToDelete.S3Name);
             }
+
             catch (Exception exception)
             {
                 return StatusCode(500, exception.InnerException);
@@ -128,10 +156,12 @@ namespace FilesShareApi.Controllers
         public IActionResult deleteAllFiles()
         {
             var filesToDelete = fileServices.GetFiles(this.User.FindFirstValue(ClaimTypes.NameIdentifier));
+
             foreach (var file in filesToDelete)
             {
                 DeleteFile(file.Id);
             }
+
             return Ok($"All your files({filesToDelete.Count}) have been deleted");
         }
 
@@ -146,8 +176,12 @@ namespace FilesShareApi.Controllers
         public async Task<IActionResult> DownloadFile(string id)
         {
             var file = fileServices.GetFileById(id);
+
             if (file == null)
+            {
                 return NotFound();
+            }
+
             try
             {
                 var objectResponse = await s3Service.DownloadFileFromS3(file.S3Name);
@@ -166,8 +200,10 @@ namespace FilesShareApi.Controllers
                         ToDelete = true
                     });
                 }
+
                 return File(objectResponse.ResponseStream, objectResponse.Headers.ContentType, file.Name);
             }
+
             catch(Exception)
             {
                 return StatusCode(500);

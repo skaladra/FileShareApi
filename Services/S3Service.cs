@@ -30,6 +30,7 @@ namespace FilesShareApi.Services
                     Key = key
                 });
             }
+
             catch (AmazonS3Exception amazonS3Exception)
             {
                 if (amazonS3Exception.ErrorCode != null
@@ -56,6 +57,7 @@ namespace FilesShareApi.Services
 
                 return objectResponse;
             }
+
             catch (AmazonS3Exception amazonS3Exception)
             {
                 if (amazonS3Exception.ErrorCode != null
@@ -70,10 +72,10 @@ namespace FilesShareApi.Services
             }
         }
 
-        public async void UploadFileToS3(IFormFile file, string key)
+        public async void UploadFileToS3(byte[] file, string key)
         {   
-            await using var newMemoryStream = new MemoryStream();
-            await file.CopyToAsync(newMemoryStream);
+            await using var newMemoryStream = new MemoryStream(file);
+
             try
             {
                 await fileTransferUtility.UploadAsync(new TransferUtilityUploadRequest
@@ -84,6 +86,7 @@ namespace FilesShareApi.Services
                     CannedACL = S3CannedACL.PublicRead,
                 });
             }
+
             catch(AmazonS3Exception amazonS3Exception)
             {
                 if (amazonS3Exception.ErrorCode != null
@@ -95,9 +98,7 @@ namespace FilesShareApi.Services
                 {
                     throw new Exception("Error occurred:" + amazonS3Exception.Message);
                 }
-            }
-
-            
+            }        
         }
     }
 }

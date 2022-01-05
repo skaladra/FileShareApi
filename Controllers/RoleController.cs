@@ -1,6 +1,5 @@
 ﻿using FilesShareApi.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
@@ -23,6 +22,7 @@ namespace FilesShareApi.Controllers
         public IActionResult GetRoles()
         {
             var roles = roleService.GetRoles();
+
             return Ok(roles);
         }
 
@@ -31,8 +31,12 @@ namespace FilesShareApi.Controllers
         public async Task<IActionResult> AddUserToRole(string id, string role)
         {
             var result = await roleService.AddUserToRole(id, role);
-            if (result.Succeeded)
+
+            if (result.Succeeded) 
+            {
                 return Ok();
+            }
+
             return StatusCode(400, result.Errors);
         }
 
@@ -44,11 +48,14 @@ namespace FilesShareApi.Controllers
         [HttpPost]
         [Authorize(Roles= "Admin")]
         public async Task<IActionResult> CreateRole([Required] string name)
-        {
-           
+        {  
            var result = await roleService.CreateRole(name);
-           if (result.Succeeded)
-               return Ok($"Role {name} Created Successfully");
+
+           if (result.Succeeded) 
+            {
+                return Ok($"Role {name} Created Successfully");
+            }
+
             return StatusCode(400, result.Errors);
         }
 
