@@ -18,13 +18,11 @@ namespace FilesShareApi.Controllers
     {
         private readonly IFileService fileServices;
         private readonly IS3Service s3Service;
-        private readonly ICryptoService cryptoService;
 
-        public FilesController(IFileService fileServices, IS3Service s3Service, ICryptoService cryptoService)
+        public FilesController(IFileService fileServices, IS3Service s3Service)
         {
             this.fileServices = fileServices;
             this.s3Service = s3Service;
-            this.cryptoService = cryptoService;
         }
 
         /// <summary>
