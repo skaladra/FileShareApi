@@ -8,11 +8,11 @@ namespace FilesShareApi.Controllers
 {
     [ApiController]
     [Route("roles")]
-    public class RoleController : ControllerBase
+    public class RolesController : ControllerBase
     {
         private readonly IRoleService roleService;
 
-        public RoleController(IRoleService roleService)
+        public RolesController(IRoleService roleService)
         {
             this.roleService = roleService;
         }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FilesShareApi.Entity
+namespace FilesShareApi
 {
     /// <summary>
     /// A class to response not all file fields

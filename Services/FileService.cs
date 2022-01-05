@@ -73,9 +73,21 @@ namespace FilesShareApi
         /// <param name="file"></param>
         public void SetFileToDelete(FileEntity file)
         {
+            var fileToDelete = new FileEntity()
+            {
+                Id = file.Id,
+                Name = file.Name,
+                Url = null,
+                DeleteAfterDownload = true,
+                CreatorId = null,
+                DocumentType = null,
+                S3Name = file.S3Name,
+                ToDelete = true
+            };
+
             var filter = new BsonDocument("_id", file.Id);
 
-            files.ReplaceOneAsync(filter, file);
+            files.ReplaceOneAsync(filter, fileToDelete);
         }
     }
 }

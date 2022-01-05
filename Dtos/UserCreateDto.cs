@@ -2,7 +2,7 @@
 
 namespace FilesShareApi
 {
-    public class UserDto
+    public class UserCreateDto
     {
         /// <summary>
         /// Username

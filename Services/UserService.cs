@@ -45,6 +45,12 @@ namespace FilesShareApi.Services
             return user;
         }
 
+        public IEnumerable<UserEntity> FindAll()
+        {
+            var result = (from users in userManager.Users select users).AsEnumerable();
+            return result;
+        }
+
         public async Task<SignInResult> Login(UserEntity user, string password)
         {
             var result = await signInManager.PasswordSignInAsync(user, password, false, false);

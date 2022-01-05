@@ -1,5 +1,4 @@
-﻿using FilesShareApi.Entity;
-using FilesShareApi.Services;
+﻿using FilesShareApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -42,20 +41,7 @@ namespace FilesShareApi.Controllers
 
             var filesList = fileServices.GetFiles(user.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            var filesListDto = new List<FileDto>();
-
-            foreach (var file in filesList)
-            {
-                filesListDto.Add(new FileDto
-                {
-                    Id = file.Id,
-                    Name = file.Name,
-                    Url = file.Url,
-                    CreatedTime = file.CreatedTime
-                });
-            }
-
-            return Ok(filesListDto);
+            return Ok(FilesMapper.CreateListDto(filesList));
         }
 
         /// <summary>
@@ -104,15 +90,7 @@ namespace FilesShareApi.Controllers
 
                 var fileName = fileServices.AddFile(fileInst);
 
-                var fileResponse = new FileDto
-                {
-                    Id = fileId,
-                    Name = fileName,
-                    Url = downloadUrl,
-                    CreatedTime = createdTime
-                };
-
-                return Ok(fileResponse);
+                return Ok(FilesMapper.CreateDto(fileInst));
             }
 
             catch (Exception exception)
@@ -146,12 +124,12 @@ namespace FilesShareApi.Controllers
             {
                 return StatusCode(500, exception.InnerException);
             }
-            return Ok($"file {fileToDelete.Name} was successfully deleted");
+            return Ok(FilesMapper.CreateDto(fileToDelete));
         }
 
         [HttpDelete("all")]
         [Authorize]
-        public IActionResult deleteAllFiles()
+        public IActionResult DeleteAllFiles()
         {
             var filesToDelete = fileServices.GetFiles(this.User.FindFirstValue(ClaimTypes.NameIdentifier));
 
@@ -160,7 +138,7 @@ namespace FilesShareApi.Controllers
                 DeleteFile(file.Id);
             }
 
-            return Ok($"All your files({filesToDelete.Count}) have been deleted");
+            return Ok(FilesMapper.CreateListDto(filesToDelete));
         }
 
         /// <summary>
@@ -186,17 +164,7 @@ namespace FilesShareApi.Controllers
 
                 if (file.DeleteAfterDownload)
                 {
-                    fileServices.SetFileToDelete(new FileEntity
-                    {
-                        Id = file.Id,
-                        Name = file.Name,
-                        Url = null,
-                        DeleteAfterDownload = true,
-                        CreatorId = null,
-                        DocumentType = null,
-                        S3Name = file.S3Name,
-                        ToDelete = true
-                    });
+                    fileServices.SetFileToDelete(file);
                 }
 
                 return File(objectResponse.ResponseStream, objectResponse.Headers.ContentType, file.Name);

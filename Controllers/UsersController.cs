@@ -4,15 +4,15 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using FilesShareApi.Services;
 
-namespace FilesShareApi.Controllers 
+namespace FilesShareApi.Controllers
 {
     [ApiController]
     [Route("users")]
-    public class UserController : ControllerBase
+    public class UsersController : ControllerBase
     {
         private readonly IUserService userService;
 
-        public UserController(IUserService userService)
+        public UsersController(IUserService userService)
         {
             this.userService = userService;
         }
@@ -24,7 +24,7 @@ namespace FilesShareApi.Controllers
         /// <returns></returns>
         [HttpPost("register")]
         [AllowAnonymous]
-        public async Task<IActionResult> CreateUser([Required] UserDto userToCreate)
+        public async Task<IActionResult> CreateUser([Required] UserCreateDto userToCreate)
         {
             if (this.User.Identity.IsAuthenticated)
             {
@@ -69,7 +69,7 @@ namespace FilesShareApi.Controllers
 
                 if (result.Succeeded)
                 {
-                    return Ok($"Welcome, {user.UserName}");
+                    return Ok(UsersMapper.CreateDto(user));
                 }
             }
 
@@ -77,6 +77,7 @@ namespace FilesShareApi.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         [Route ("logout")]
         public IActionResult LogOut()
         {
@@ -84,6 +85,16 @@ namespace FilesShareApi.Controllers
 
             return Ok();
         }
+
+        [HttpGet]
+        [Authorize(Roles ="Admin")]
+        public IActionResult GetAllUsers()
+        {
+            var users = userService.FindAll();
+
+            return Ok(UsersMapper.CreateDtoList(users));
+        }
+
 
         [HttpDelete]
         [Route ("delete")]
