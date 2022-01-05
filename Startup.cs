@@ -1,6 +1,5 @@
 using Amazon.S3;
 using FilesShareApi.FilesCleaner;
-using FilesShareApi.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;

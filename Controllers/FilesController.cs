@@ -1,14 +1,12 @@
-﻿using FilesShareApi.Services;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace FilesShareApi.Controllers
+namespace FilesShareApi
 {
     [Authorize]
     [ApiController]

@@ -2,9 +2,8 @@
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
-using FilesShareApi.Services;
 
-namespace FilesShareApi.Controllers
+namespace FilesShareApi
 {
     [ApiController]
     [Route("users")]

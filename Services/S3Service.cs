@@ -6,7 +6,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace FilesShareApi.Services
+namespace FilesShareApi
 {
     public class S3Service : IS3Service
     {

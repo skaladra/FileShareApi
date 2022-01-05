@@ -1,10 +1,9 @@
-﻿using FilesShareApi.Services;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
-namespace FilesShareApi.Controllers
+namespace FilesShareApi
 {
     [ApiController]
     [Route("roles")]

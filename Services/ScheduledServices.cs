@@ -3,7 +3,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace FilesShareApi.Services
+namespace FilesShareApi
 {
     public class ScheduledServices : HostedService
     {

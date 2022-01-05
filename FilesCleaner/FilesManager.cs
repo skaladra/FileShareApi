@@ -1,5 +1,4 @@
-﻿using FilesShareApi.Services;
-using System.Threading;
+﻿using System.Threading;
 
 namespace FilesShareApi.FilesCleaner
 {

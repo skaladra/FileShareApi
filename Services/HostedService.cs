@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace FilesShareApi.FilesCleaner
+namespace FilesShareApi
 {
     public abstract class HostedService : IHostedService
     {

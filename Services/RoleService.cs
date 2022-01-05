@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace FilesShareApi.Services
+namespace FilesShareApi
 {
     public class RoleService: IRoleService
     {

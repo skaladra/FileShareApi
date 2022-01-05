@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 
-namespace FilesShareApi.Services
+namespace FilesShareApi
 {
     public interface IS3Service
     {
