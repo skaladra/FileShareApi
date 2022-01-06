@@ -8,7 +8,7 @@ namespace FilesShareApi
         {
             return new FileDto()
             {
-                CreatedTime = file.CreatedTime,
+                CreatedTime = file.CreatedTimeUtc,
                 Id = file.Id,
                 Name = file.Name,
                 Url = file.Url

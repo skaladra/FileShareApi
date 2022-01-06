@@ -1,13 +1,39 @@
 ﻿using MongoDbGenericRepository.Attributes;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
-
+using System.IO;
 
 namespace FilesShareApi
 {
     [CollectionName("Files")]
     public class FileEntity
     {
+        public FileEntity(string userId, string contentType, string fileName, string link, bool deleteOnceDownload)
+        {
+            Id = Guid.NewGuid().ToString();
+            Name = fileName;
+            Url = link + $"/download?id={Id}";
+            CreatedTimeUtc = DateTime.Now;
+            CreatedTime = CreatedTimeUtc.ToLocalTime();
+            DeleteAfterDownload = deleteOnceDownload;
+            CreatorId = userId;
+            DocumentType = contentType;
+            S3Name = Id + Path.GetExtension(fileName);
+            ToDelete = false;
+        }
+
+        public FileEntity(bool toDelete, string id)
+        {
+            Id = id;
+            Name = null;
+            Url = null;
+            DeleteAfterDownload = true;
+            CreatorId = null;
+            DocumentType = null;
+            S3Name = null;
+            ToDelete = true;
+        }
+
         /// <summary>
         /// File's identifier 
         /// </summary>
@@ -27,11 +53,12 @@ namespace FilesShareApi
         /// <summary>
         /// Time of adding
         /// </summary>
-        public DateTime CreatedTime { get; set; }
+        public DateTime CreatedTimeUtc { get; set; }
 
         /// <summary>
         /// Should the file be deleted once it was downloaded
         /// </summary>
+        public DateTime CreatedTime { get; set; }
         public bool DeleteAfterDownload { get; set; }
 
         /// <summary>

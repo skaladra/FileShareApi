@@ -28,7 +28,7 @@ namespace FilesShareApi
         /// <returns></returns>
         [HttpGet]
         [Authorize]
-        public IActionResult GetFiles()
+        public async Task<IActionResult> GetFiles()
         {
             var user = this.User;
 
@@ -37,7 +37,7 @@ namespace FilesShareApi
                 return StatusCode(404);
             } 
 
-            var filesList = fileServices.GetFiles(user.FindFirstValue(ClaimTypes.NameIdentifier));
+            var filesList = await fileServices.GetFiles(user.FindFirstValue(ClaimTypes.NameIdentifier));
 
             return Ok(FilesMapper.CreateListDto(filesList));
         }
@@ -57,34 +57,21 @@ namespace FilesShareApi
             await using (var memoryStream = new MemoryStream())
             {
                 await file.CopyToAsync(memoryStream);
-
                 byteFile = memoryStream.ToArray();
             }
 
-            var fileId = Guid.NewGuid().ToString();
-
-            var fileNameS3 = fileId + Path.GetExtension(file.FileName);
-
             try
             {
-                s3Service.UploadFileToS3(byteFile, fileNameS3);
-
-                var downloadUrl = this.Url.ActionLink() + $"/download?id={fileId}";
-
-                var createdTime = DateTime.Now;
-
                 var fileInst = new FileEntity
-                {
-                    Id = fileId,
-                    Name = file.FileName,
-                    Url = downloadUrl,
-                    CreatedTime = createdTime,
-                    DeleteAfterDownload = deleteOnceDownload,
-                    CreatorId = this.User.FindFirstValue(ClaimTypes.NameIdentifier),
-                    DocumentType = file.ContentType,
-                    S3Name = fileNameS3,
-                    ToDelete = false
-                };
+                    (
+                        this.User.FindFirstValue(ClaimTypes.NameIdentifier),
+                        file.ContentType,
+                        file.FileName,
+                        this.Url.ActionLink(),
+                        deleteOnceDownload
+                    );
+
+                s3Service.UploadFileToS3(byteFile, fileInst.S3Name);
 
                 var fileName = fileServices.AddFile(fileInst);
 
@@ -127,9 +114,9 @@ namespace FilesShareApi
 
         [HttpDelete("all")]
         [Authorize]
-        public IActionResult DeleteAllFiles()
+        public async Task<IActionResult> DeleteAllFiles()
         {
-            var filesToDelete = fileServices.GetFiles(this.User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var filesToDelete = await fileServices.GetFiles(this.User.FindFirstValue(ClaimTypes.NameIdentifier));
 
             foreach (var file in filesToDelete)
             {

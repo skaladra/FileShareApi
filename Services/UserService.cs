@@ -38,6 +38,13 @@ namespace FilesShareApi
             return user;
         }
 
+        public async Task<UserEntity> FindByName(string name)
+        {
+            var user = await userManager.FindByNameAsync(name);
+
+            return user;
+        }
+
         public async Task<UserEntity> FindById(string id)
         {
             var user = await userManager.FindByIdAsync(id);

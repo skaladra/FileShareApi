@@ -11,6 +11,7 @@ namespace FilesShareApi
         Task<IdentityResult> CreateUser(UserEntity user, string password);
         Task<SignInResult> Login(UserEntity user, string password);
         Task<UserEntity> FindByEmail(string email);
+        Task<UserEntity> FindByName(string name);
         Task<UserEntity> FindById(string id);
         IEnumerable<UserEntity> FindAll();
         void Logout();

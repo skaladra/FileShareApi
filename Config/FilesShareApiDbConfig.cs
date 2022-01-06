@@ -16,6 +16,8 @@ namespace FilesShareApi
 
         public string Roles_Collections_Name { get; set; }
 
+        public string Messages_Collection_Name { get; set; }
+
         /// <summary>
         /// string to connect to database
         /// </summary>

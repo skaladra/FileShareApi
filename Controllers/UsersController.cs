@@ -27,7 +27,7 @@ namespace FilesShareApi
         {
             if (this.User.Identity.IsAuthenticated)
             {
-                return Ok("You are already registered");
+                return StatusCode(400, "You are already registered");
             }
 
             var newUser = new UserEntity
@@ -60,7 +60,7 @@ namespace FilesShareApi
         [AllowAnonymous]
         public async Task<IActionResult> Login([Required][EmailAddress] string email, [Required] string password)
         {
-            UserEntity user = await userService.FindByEmail(email);
+            var user = await userService.FindByEmail(email);
 
             if (user != null)
             {
@@ -75,9 +75,8 @@ namespace FilesShareApi
             return StatusCode(401, "Login Failed: Invalid Email or Password");
         }
 
-        [HttpPost]
+        [HttpPost("logout")]
         [Authorize]
-        [Route ("logout")]
         public IActionResult LogOut()
         {
             userService.Logout();
@@ -85,13 +84,41 @@ namespace FilesShareApi
             return Ok();
         }
 
-        [HttpGet]
+        [HttpGet("find/all")]
         [Authorize(Roles ="Admin")]
         public IActionResult GetAllUsers()
         {
             var users = userService.FindAll();
 
             return Ok(UsersMapper.CreateDtoList(users));
+        }
+
+        [HttpGet("find/byName")]
+        [Authorize]
+        public async Task<IActionResult> FindUserByName(string name)
+        {
+            var user = await userService.FindByName(name);
+
+            if (user == null)
+            {
+                return Ok();
+            }
+
+            return Ok(UsersMapper.CreateDto(user));
+        }
+
+        [HttpGet("find/byEmail")]
+        [Authorize]
+        public async Task<IActionResult> FindUserByEmail(string email)
+        {
+            var user = await userService.FindByEmail(email);
+
+            if (user == null)
+            {
+                return Ok();
+            }
+
+            return Ok(UsersMapper.CreateDto(user));
         }
 
 

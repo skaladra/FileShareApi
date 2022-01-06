@@ -1,6 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FilesShareApi
 {
@@ -18,9 +19,11 @@ namespace FilesShareApi
         /// </summary>
         /// <param name="id">file's identifier </param>
         /// <returns></returns>
-        public List<FileEntity> GetFiles(string id)
+        public async Task<List<FileEntity>> GetFiles(string id)
         {
-            return files.Find(file => file.CreatorId == id).ToList();
+            var filesList = await files.FindAsync(file => file.CreatorId == id);
+
+            return await filesList.ToListAsync();
         }
 
         /// <summary>
@@ -73,17 +76,9 @@ namespace FilesShareApi
         /// <param name="file"></param>
         public void SetFileToDelete(FileEntity file)
         {
-            var fileToDelete = new FileEntity()
-            {
-                Id = file.Id,
-                Name = file.Name,
-                Url = null,
-                DeleteAfterDownload = true,
-                CreatorId = null,
-                DocumentType = null,
-                S3Name = file.S3Name,
-                ToDelete = true
-            };
+            var toDelete = true;
+
+            var fileToDelete = new FileEntity(toDelete, file.Id);
 
             var filter = new BsonDocument("_id", file.Id);
 
