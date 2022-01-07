@@ -24,7 +24,8 @@ namespace FilesShareApi.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> SendMessage(string text, string recipentId)
+        public async Task<IActionResult> SendMessage([FromBody] string text,
+            [FromQuery(Name ="recipent")] string recipentId)
         {
             var user = await userService.FindById(this.User.FindFirstValue(ClaimTypes.NameIdentifier));
             var recipent = await userService.FindById(recipentId);
