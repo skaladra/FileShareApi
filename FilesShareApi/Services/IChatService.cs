@@ -7,7 +7,7 @@ namespace FilesShareApi
 {
     public interface IChatService
     {
-        MessageEntity SendMessage(string text, UserEntity user, UserEntity recipent);
+        MessageEntity SendMessage(byte[] text, UserEntity user, UserEntity recipent);
         void DeleteMessage(string id, string userId);
         Task<List<MessageEntity>> GetMessages(string userId);
     }

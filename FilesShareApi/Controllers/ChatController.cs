@@ -1,15 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace FilesShareApi.Controllers
 {
     [ApiController]
-    [Route("chats")]
+    [Route("/chats")]
     public class ChatController : Controller
     {
         private readonly IChatService chatService;
@@ -22,24 +21,30 @@ namespace FilesShareApi.Controllers
         }
 
 
-        [HttpPost]
+        [HttpPost("/chats/1")]
         [Authorize]
         public async Task<IActionResult> SendMessage([FromBody] string text,
             [FromQuery(Name ="recipent")] string recipentId)
         {
             var user = await userService.FindById(this.User.FindFirstValue(ClaimTypes.NameIdentifier));
+
             var recipent = await userService.FindById(recipentId);
+
             if (recipent == null || user.Id == recipent.Id)
             {
                 return StatusCode(400, "User doesn't exist.");
             }
-            var result = chatService.SendMessage(text, user, recipent);
-            return Ok(result);
+
+            var encryptedText = CryptoService.Encrypt(text);
+
+            var message = chatService.SendMessage(encryptedText, user, recipent);
+
+            return Ok(MessageMapper.CreateDto(message));
         }
 
-        [HttpDelete]
+        [HttpDelete("/chats/1")]
         [Authorize]
-        public IActionResult DeleteMessage(string id)
+        public IActionResult DeleteMessage([FromQuery(Name = "id")] string id)
         {
             var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
             chatService.DeleteMessage(id, userId);
@@ -50,12 +55,12 @@ namespace FilesShareApi.Controllers
         [Authorize]
         public async Task<IActionResult> GetIncomingMessages()
         {
-            var messages = await chatService.GetMessages
+            var encryptedMessages = await chatService.GetMessages
                 (
                 this.User.FindFirstValue(ClaimTypes.NameIdentifier)
                 );
 
-            return Ok(messages);
+            return Ok(MessageMapper.CreateListDto(encryptedMessages));
         }
     }
 }

@@ -10,7 +10,7 @@ namespace FilesShareApi
 {
     [Authorize]
     [ApiController]
-    [Route("files")]
+    [Route("/files")]
     public class FilesController : ControllerBase
     {
         private readonly IFileService fileServices;
@@ -48,7 +48,7 @@ namespace FilesShareApi
         /// <param name="file">file instance</param>
         /// <param name="deleteOnceDownload">defines whether the file should be deleted after download</param>
         /// <returns></returns>
-        [HttpPost]
+        [HttpPost("/files")]
         [Authorize]
         public async Task<IActionResult> UploadFile(IFormFile file, bool deleteOnceDownload = false)
         {
@@ -89,9 +89,9 @@ namespace FilesShareApi
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [HttpDelete]
+        [HttpDelete("/files/1")]
         [Authorize]
-        public IActionResult DeleteFile(string id)
+        public IActionResult DeleteFile([FromQuery] string id)
         {
             var fileToDelete = fileServices.DeleteFile(id, this.User.FindFirstValue(ClaimTypes.NameIdentifier));
 
@@ -112,7 +112,7 @@ namespace FilesShareApi
             return Ok(FilesMapper.CreateDto(fileToDelete));
         }
 
-        [HttpDelete("all")]
+        [HttpDelete]
         [Authorize]
         public async Task<IActionResult> DeleteAllFiles()
         {
@@ -134,7 +134,7 @@ namespace FilesShareApi
         /// <returns></returns>
         [HttpGet("download")] 
         [AllowAnonymous]
-        public async Task<IActionResult> DownloadFile(string id)
+        public async Task<IActionResult> DownloadFile([FromQuery] string id)
         {
             var file = fileServices.GetFileById(id);
 

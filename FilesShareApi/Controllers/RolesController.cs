@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace FilesShareApi
 {
     [ApiController]
-    [Route("roles")]
+    [Route("/roles")]
     public class RolesController : ControllerBase
     {
         private readonly IRoleService roleService;
@@ -25,7 +25,7 @@ namespace FilesShareApi
             return Ok(roles);
         }
 
-        [HttpPut("add/user")]
+        [HttpPut("/roles/user/1")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddUserToRole(string id, string role)
         {
@@ -44,9 +44,9 @@ namespace FilesShareApi
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        [HttpPost]
-        [Authorize(Roles= "Admin")]
-        public async Task<IActionResult> CreateRole([Required] string name)
+        [HttpPost("/roles/1")]
+        [Authorize(Roles="Admin")]
+        public async Task<IActionResult> CreateRole([FromQuery(Name ="name")][Required] string name)
         {  
            var result = await roleService.CreateRole(name);
 

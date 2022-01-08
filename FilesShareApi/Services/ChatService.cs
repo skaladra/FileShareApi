@@ -27,15 +27,15 @@ namespace FilesShareApi
             return await msgs.ToListAsync();
         }
 
-        public MessageEntity SendMessage(string text, UserEntity user, UserEntity recipent)
+        public MessageEntity SendMessage(byte[] encryptedText, UserEntity user, UserEntity recipent)
         {
             var msg = new MessageEntity
                 (
                 user.Id.ToString(), 
                 user.UserName, 
                 recipent.Id.ToString(), 
-                recipent.UserName, 
-                text
+                recipent.UserName,
+                encryptedText
                 );
             messages.InsertOne(msg);
             return msg;

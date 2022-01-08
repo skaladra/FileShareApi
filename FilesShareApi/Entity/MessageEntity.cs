@@ -11,7 +11,7 @@ namespace FilesShareApi
             string userName, 
             string recipentId, 
             string recipentName, 
-            string text
+            byte[] encryptedText
             )
         {
             Id = Guid.NewGuid().ToString();
@@ -21,14 +21,14 @@ namespace FilesShareApi
             SentTime = SentTimeUtc.ToLocalTime();
             SentToId = recipentId;
             SentToName = recipentName;
-            Text = text;
+            EncryptedText = encryptedText;
         }
 
         [BsonId]
         public string Id { get; set;  }
         public DateTime SentTimeUtc { get; set; }
         public DateTime SentTime { get; set; } 
-        public string Text { get; set; }
+        public byte[] EncryptedText { get; set; }
         public string SentById { get; set; }
         public string SentToId { get; set; }
         public string SentByName { get; set; }

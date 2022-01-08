@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace FilesShareApi
 {
     [ApiController]
-    [Route("users")]
+    [Route("/users")]
     public class UsersController : ControllerBase
     {
         private readonly IUserService userService;
@@ -84,7 +84,7 @@ namespace FilesShareApi
             return Ok();
         }
 
-        [HttpGet("find/all")]
+        [HttpGet]
         [Authorize(Roles ="Admin")]
         public IActionResult GetAllUsers()
         {
@@ -93,9 +93,9 @@ namespace FilesShareApi
             return Ok(UsersMapper.CreateDtoList(users));
         }
 
-        [HttpGet("find/byName")]
+        [HttpGet("/users/1")]
         [Authorize]
-        public async Task<IActionResult> FindUserByName(string name)
+        public async Task<IActionResult> FindUserByName([FromQuery(Name = "name")] string name)
         {
             var user = await userService.FindByName(name);
 
@@ -107,24 +107,8 @@ namespace FilesShareApi
             return Ok(UsersMapper.CreateDto(user));
         }
 
-        [HttpGet("find/byEmail")]
-        [Authorize]
-        public async Task<IActionResult> FindUserByEmail(string email)
-        {
-            var user = await userService.FindByEmail(email);
-
-            if (user == null)
-            {
-                return Ok();
-            }
-
-            return Ok(UsersMapper.CreateDto(user));
-        }
-
-
-        [HttpDelete]
-        [Route ("delete")]
-        public async Task<IActionResult> DeleteUser(string id)
+        [HttpDelete("/users/1")]
+        public async Task<IActionResult> DeleteUser([FromQuery(Name = "id")] string id)
         {
             var userToDelete = await userService.FindById(id);
 
