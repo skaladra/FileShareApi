@@ -5,4 +5,4 @@
 2. set your own bucketname in application
 3. set connection string to your own MongoDB
  
-
+###Important: if you want to test application, don't use config properties in DbConfig, write the required properties directly in the class
