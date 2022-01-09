@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace FilesShareApi
 {
@@ -27,7 +28,7 @@ namespace FilesShareApi
         {
             if (this.User.Identity.IsAuthenticated)
             {
-                return StatusCode(400, "You are already registered");
+                return StatusCode(400, "{ Error: You are already registered }");
             }
 
             var newUser = new UserEntity
@@ -42,12 +43,12 @@ namespace FilesShareApi
             {
                 var user = await userService.FindByEmail(userToCreate.Email);
 
-                await Login(user.Email, userToCreate.Password);
+                await Login(UsersMapper.CreateUserLoginDto(userToCreate.Email, userToCreate.Password));
 
-                return Ok($"User {userToCreate.Name} Created Successfully");
+                return Ok(UsersMapper.CreateUserResponseDto(user));
             }
 
-            return StatusCode(400, $"Registration Failed: {result.Errors}");
+            return StatusCode(400,  $"Registration Failed: {result.Errors} ");
         }
 
         /// <summary>
@@ -58,24 +59,24 @@ namespace FilesShareApi
         /// <returns></returns>
         [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<IActionResult> Login([Required][EmailAddress] string email, [Required] string password)
+        public async Task<IActionResult> Login([FromBody] UserLoginDto loginParameters)
         {
-            var user = await userService.FindByEmail(email);
+            var user = await userService.FindByEmail(loginParameters.Email);
 
             if (user != null)
             {
-                var result = await userService.Login(user, password);
+                var result = await userService.Login(user, loginParameters.Password);
 
                 if (result.Succeeded)
                 {
-                    return Ok(UsersMapper.CreateDto(user));
+                    return Ok(UsersMapper.CreateUserResponseDto(user));
                 }
             }
 
-            return StatusCode(401, "Login Failed: Invalid Email or Password");
+            return StatusCode(401, "{ Error: Invalid Email or Password }");
         }
 
-        [HttpPost("logout")]
+        [HttpGet("logout")]
         [Authorize]
         public IActionResult LogOut()
         {
@@ -104,10 +105,11 @@ namespace FilesShareApi
                 return Ok();
             }
 
-            return Ok(UsersMapper.CreateDto(user));
+            return Ok(UsersMapper.CreateUserResponseDto(user));
         }
 
         [HttpDelete("/users/1")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUser([FromQuery(Name = "id")] string id)
         {
             var userToDelete = await userService.FindById(id);
@@ -122,7 +124,7 @@ namespace FilesShareApi
                 }
             }
 
-            return StatusCode(404, "User not found");
+            return StatusCode(404, "{ Error: User not found }");
         }
 
     }

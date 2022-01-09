@@ -133,3 +133,4 @@ $RECYCLE.BIN/
 
 _NCrunch*
 /.vs
+/FilesShareApi.Tests/FilesControllerTests.cs

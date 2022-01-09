@@ -19,7 +19,7 @@
         "FILES_COLLECTION_NAME": "Files",
         "USERS_COLLECTION_NAME": "Users",
         "ROLES_COLLECTION_NAME": "Roles",
-        "MESSAGES_COLLECTION_NAME": "Messages",
+        "MESSAGES_COLLECTION_NAME": "Messages"
       }
     },
     "FilesShareApi": {
@@ -32,7 +32,7 @@
         "FILES_COLLECTION_NAME": "Files",
         "USERS_COLLECTION_NAME": "Users",
         "ROLES_COLLECTION_NAME": "Roles",
-        "MESSAGES_COLLECTION_NAME": "Messages",
+        "MESSAGES_COLLECTION_NAME": "Messages"
       },
       "dotnetRunMessages": "true",
       "applicationUrl": "https://localhost:5001;http://localhost:5000"

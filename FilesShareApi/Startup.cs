@@ -47,7 +47,7 @@ namespace FilesShareApi
 
             services.ConfigureApplicationCookie(config =>
             {
-                config.Cookie.Name = "Api.Identity.Cookie";
+                config.Cookie.Name = "FilesShareApi.Identity.Cookie";
                 config.LoginPath = "/login"; 
             }
             );
