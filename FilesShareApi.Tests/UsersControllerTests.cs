@@ -12,11 +12,11 @@ using FilesShareApi.Tests;
 
 namespace FileShareApi.Tests
 {
-    public class FilesControllerTest
+    public class UsersControllerTests
     {
         private readonly HttpClient client;
 
-        public FilesControllerTest()
+        public UsersControllerTests()
         {
             client = ServerCreator.GetHTTPClient();
         }
