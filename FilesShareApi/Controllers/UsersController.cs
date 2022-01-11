@@ -37,11 +37,11 @@ namespace FilesShareApi
                 Email = userToCreate.Email
             };
 
-            var result = await userService.CreateUser(newUser, userToCreate.Password);
+            var result = await userService.CreateOne(newUser, userToCreate.Password);
 
             if (result.Succeeded)
             {
-                var user = await userService.FindByEmail(userToCreate.Email);
+                var user = await userService.FindOneByEmail(userToCreate.Email);
 
                 await Login(UsersMapper.CreateUserLoginDto(userToCreate.Email, userToCreate.Password));
 
@@ -61,7 +61,7 @@ namespace FilesShareApi
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] UserLoginDto loginParameters)
         {
-            var user = await userService.FindByEmail(loginParameters.Email);
+            var user = await userService.FindOneByEmail(loginParameters.Email);
 
             if (user != null)
             {
@@ -89,7 +89,7 @@ namespace FilesShareApi
         [Authorize(Roles ="Admin")]
         public IActionResult GetAllUsers()
         {
-            var users = userService.FindAll();
+            var users = userService.FindAllByAdmin();
 
             return Ok(UsersMapper.CreateDtoList(users));
         }
@@ -98,7 +98,7 @@ namespace FilesShareApi
         [Authorize]
         public async Task<IActionResult> FindUserByName([FromQuery(Name = "name")] string name)
         {
-            var user = await userService.FindByName(name);
+            var user = await userService.FindOneByName(name);
 
             if (user == null)
             {
@@ -112,11 +112,11 @@ namespace FilesShareApi
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUser([FromQuery(Name = "id")] string id)
         {
-            var userToDelete = await userService.FindById(id);
+            var userToDelete = await userService.FindOneById(id);
 
             if (userToDelete != null)
             {
-                var result = await userService.DeleteUser(userToDelete);
+                var result = await userService.DeleteOne(userToDelete);
 
                 if (result.Succeeded)
                 {

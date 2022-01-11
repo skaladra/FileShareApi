@@ -19,11 +19,25 @@ namespace FilesShareApi
         /// </summary>
         /// <param name="id">file's identifier </param>
         /// <returns></returns>
-        public async Task<List<FileEntity>> GetFiles(string id)
+        public async Task<List<FileEntity>> GetAll(string id)
         {
             var filesList = await files.FindAsync(file => file.CreatorId == id);
 
             return await filesList.ToListAsync();
+        }
+
+        public IEnumerable<FileEntity> GetAllByAdmin()
+        {
+            var filesList = files.AsQueryable().ToEnumerable();
+
+            return filesList;
+        }
+
+        public FileEntity DeleteOneByAdmin(string id)
+        {
+            var file = files.FindOneAndDelete(file => file.Id == id);
+
+            return file;
         }
 
         /// <summary>
@@ -32,7 +46,7 @@ namespace FilesShareApi
         /// <param name="id">file's identifier </param>
         /// <param name="creatorId">author's id</param>
         /// <returns></returns>
-        public FileEntity DeleteFile(string id, string creatorId)
+        public FileEntity DeleteOne(string id, string creatorId)
         {
             var file = files.FindOneAndDelete( file => file.CreatorId == creatorId && file.Id == id);
 
@@ -44,7 +58,7 @@ namespace FilesShareApi
         /// </summary>
         /// <param name="id">file's identifier </param>
         /// <returns></returns>
-        public FileEntity GetFileById(string id)
+        public FileEntity GetOneById(string id)
         {
             return files.Find(file => file.Id == id).First();
         }
@@ -54,7 +68,7 @@ namespace FilesShareApi
         /// </summary>
         /// <param name="file"></param>
         /// <returns></returns>
-        public string AddFile(FileEntity file)
+        public string AddOne(FileEntity file)
         {
             files.InsertOne(file);
 
@@ -65,7 +79,7 @@ namespace FilesShareApi
         /// Get list of files that were marked to be deleted
         /// </summary>
         /// <returns></returns>
-        public List<FileEntity> GetFilesToDelete() 
+        public List<FileEntity> GetToDelete() 
         { 
             return files.Find(file => file.ToDelete == true).ToList(); 
         }
@@ -74,7 +88,7 @@ namespace FilesShareApi
         /// Mark file to be deleted
         /// </summary>
         /// <param name="file"></param>
-        public void SetFileToDelete(FileEntity file)
+        public void SetToDelete(FileEntity file)
         {
             var toDelete = true;
 

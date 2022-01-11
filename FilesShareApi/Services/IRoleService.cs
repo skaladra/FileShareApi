@@ -8,8 +8,8 @@ namespace FilesShareApi
 {
     public interface IRoleService
     {
-        Task<IdentityResult> AddUserToRole(string id, string role);
-        Task<IdentityResult> CreateRole(string role);
-        IEnumerable<RoleEntity> GetRoles();
+        Task<IdentityResult> AddUser(string id, string role);
+        Task<IdentityResult> CreateOne(string role);
+        IEnumerable<RoleEntity> GetAll();
     }
 }

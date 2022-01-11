@@ -26,9 +26,9 @@ namespace FilesShareApi.Controllers
         public async Task<IActionResult> SendMessage([FromBody] string text,
             [FromQuery(Name ="recipent")] string recipentId)
         {
-            var user = await userService.FindById(this.User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var user = await userService.FindOneById(this.User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            var recipent = await userService.FindById(recipentId);
+            var recipent = await userService.FindOneById(recipentId);
 
             if (recipent == null || user.Id == recipent.Id)
             {
@@ -37,7 +37,7 @@ namespace FilesShareApi.Controllers
 
             var encryptedText = CryptoService.Encrypt(text);
 
-            var message = chatService.SendMessage(encryptedText, user, recipent);
+            var message = chatService.CreateOne(encryptedText, user, recipent);
 
             return Ok(MessageMapper.CreateDto(message));
         }
@@ -47,7 +47,7 @@ namespace FilesShareApi.Controllers
         public IActionResult DeleteMessage([FromQuery(Name = "id")] string id)
         {
             var userId = this.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            chatService.DeleteMessage(id, userId);
+            chatService.DeleteOne(id, userId);
             return Ok();
         }
 
@@ -55,7 +55,7 @@ namespace FilesShareApi.Controllers
         [Authorize]
         public async Task<IActionResult> GetIncomingMessages()
         {
-            var encryptedMessages = await chatService.GetMessages
+            var encryptedMessages = await chatService.GetAll
                 (
                 this.User.FindFirstValue(ClaimTypes.NameIdentifier)
                 );

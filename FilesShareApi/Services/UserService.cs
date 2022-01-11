@@ -17,42 +17,42 @@ namespace FilesShareApi
             this.signInManager = signInManager;
         }
 
-        public async Task<IdentityResult> CreateUser(UserEntity user, string password)
+        public async Task<IdentityResult> CreateOne(UserEntity user, string password)
         {
             IdentityResult result = await userManager.CreateAsync(user, password);
 
             return result;
         }
 
-        public async Task<IdentityResult> DeleteUser(UserEntity user)
+        public async Task<IdentityResult> DeleteOne(UserEntity user)
         {
             var result = await userManager.DeleteAsync(user);
 
             return result;
         }
 
-        public async Task<UserEntity> FindByEmail(string email)
+        public async Task<UserEntity> FindOneByEmail(string email)
         {
             var user = await userManager.FindByEmailAsync(email);
 
             return user;
         }
 
-        public async Task<UserEntity> FindByName(string name)
+        public async Task<UserEntity> FindOneByName(string name)
         {
             var user = await userManager.FindByNameAsync(name);
 
             return user;
         }
 
-        public async Task<UserEntity> FindById(string id)
+        public async Task<UserEntity> FindOneById(string id)
         {
             var user = await userManager.FindByIdAsync(id);
 
             return user;
         }
 
-        public IEnumerable<UserEntity> FindAll()
+        public IEnumerable<UserEntity> FindAllByAdmin()
         {
             var result = (from users in userManager.Users select users).AsEnumerable();
             return result;

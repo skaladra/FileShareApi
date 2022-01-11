@@ -19,11 +19,11 @@ namespace FilesShareApi.FilesCleaner
 
         public void DeleteUselessFiles(CancellationToken cancellationToken)
         {
-            var filesToDelete = fileService.GetFilesToDelete();
+            var filesToDelete = fileService.GetToDelete();
 
             foreach (var fileToDelete in filesToDelete)
             {
-                fileService.DeleteFile(fileToDelete.Id, null);
+                fileService.DeleteOne(fileToDelete.Id, null);
                 s3Service.DeleteFileFromS3(fileToDelete.S3Name);
             }
         }

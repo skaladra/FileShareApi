@@ -37,9 +37,41 @@ namespace FilesShareApi
                 return StatusCode(404);
             } 
 
-            var filesList = await fileServices.GetFiles(user.FindFirstValue(ClaimTypes.NameIdentifier));
+            var filesList = await fileServices.GetAll(user.FindFirstValue(ClaimTypes.NameIdentifier));
 
             return Ok(FilesMapper.CreateListDto(filesList));
+        }
+
+        [HttpGet("/files/all")]
+        [Authorize(Roles =("Admin"))]
+        public IActionResult GetAllFiles()
+        {
+            var filesList = fileServices.GetAllByAdmin();
+
+            return Ok(FilesMapper.CreateListDto(filesList));
+        }
+
+        [HttpDelete("/files/admin/1")]
+        [Authorize(Roles = ("Admin"))]
+        public IActionResult DeleteFileByAdmin([FromQuery] string id)
+        {
+            var fileToDelete = fileServices.DeleteOneByAdmin(id);
+
+            if (fileToDelete == null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                s3Service.DeleteFileFromS3(fileToDelete.S3Name);
+            }
+
+            catch (Exception exception)
+            {
+                return StatusCode(500, exception.InnerException);
+            }
+            return Ok(FilesMapper.CreateDto(fileToDelete));
         }
 
         /// <summary>
@@ -73,7 +105,7 @@ namespace FilesShareApi
 
                 s3Service.UploadFileToS3(byteFile, fileInst.S3Name);
 
-                var fileName = fileServices.AddFile(fileInst);
+                var fileName = fileServices.AddOne(fileInst);
 
                 return Ok(FilesMapper.CreateDto(fileInst));
             }
@@ -93,7 +125,7 @@ namespace FilesShareApi
         [Authorize]
         public IActionResult DeleteFile([FromQuery] string id)
         {
-            var fileToDelete = fileServices.DeleteFile(id, this.User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var fileToDelete = fileServices.DeleteOne(id, this.User.FindFirstValue(ClaimTypes.NameIdentifier));
 
             if (fileToDelete == null)
             {
@@ -116,7 +148,7 @@ namespace FilesShareApi
         [Authorize]
         public async Task<IActionResult> DeleteAllFiles()
         {
-            var filesToDelete = await fileServices.GetFiles(this.User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var filesToDelete = await fileServices.GetAll(this.User.FindFirstValue(ClaimTypes.NameIdentifier));
 
             foreach (var file in filesToDelete)
             {
@@ -136,7 +168,7 @@ namespace FilesShareApi
         [AllowAnonymous]
         public async Task<IActionResult> DownloadFile([FromQuery] string id)
         {
-            var file = fileServices.GetFileById(id);
+            var file = fileServices.GetOneById(id);
 
             if (file == null)
             {
@@ -149,7 +181,7 @@ namespace FilesShareApi
 
                 if (file.DeleteAfterDownload)
                 {
-                    fileServices.SetFileToDelete(file);
+                    fileServices.SetToDelete(file);
                 }
 
                 return File(objectResponse.ResponseStream, objectResponse.Headers.ContentType, file.Name);

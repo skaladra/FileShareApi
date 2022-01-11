@@ -20,16 +20,17 @@ namespace FilesShareApi
         [Authorize(Roles = "Admin")]
         public IActionResult GetRoles()
         {
-            var roles = roleService.GetRoles();
+            var roles = roleService.GetAll();
 
             return Ok(roles);
         }
 
         [HttpPut("/roles/user/1")]
+        [Authorize]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddUserToRole(string id, string role)
         {
-            var result = await roleService.AddUserToRole(id, role);
+            var result = await roleService.AddUser(id, role);
 
             if (result.Succeeded) 
             {
@@ -48,7 +49,7 @@ namespace FilesShareApi
         [Authorize(Roles="Admin")]
         public async Task<IActionResult> CreateRole([FromQuery(Name ="name")][Required] string name)
         {  
-           var result = await roleService.CreateRole(name);
+           var result = await roleService.CreateOne(name);
 
            if (result.Succeeded) 
             {

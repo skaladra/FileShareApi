@@ -8,13 +8,13 @@ namespace FilesShareApi
 {
     public interface IUserService
     {
-        Task<IdentityResult> CreateUser(UserEntity user, string password);
+        Task<IdentityResult> CreateOne(UserEntity user, string password);
         Task<SignInResult> Login(UserEntity user, string password);
-        Task<UserEntity> FindByEmail(string email);
-        Task<UserEntity> FindByName(string name);
-        Task<UserEntity> FindById(string id);
-        IEnumerable<UserEntity> FindAll();
+        Task<UserEntity> FindOneByEmail(string email);
+        Task<UserEntity> FindOneByName(string name);
+        Task<UserEntity> FindOneById(string id);
+        IEnumerable<UserEntity> FindAllByAdmin();
         void Logout();
-        Task<IdentityResult> DeleteUser(UserEntity user);
+        Task<IdentityResult> DeleteOne(UserEntity user);
     }
 }

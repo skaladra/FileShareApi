@@ -15,19 +15,19 @@ namespace FilesShareApi
             messages = dbClient.GetMessagesCollection();
         }
 
-        public void DeleteMessage(string id, string userId)
+        public void DeleteOne(string id, string userId)
         {
             messages.FindOneAndDeleteAsync(m => m.Id == id && m.SentById == userId);
         }
 
-        public async Task<List<MessageEntity>> GetMessages(string userId)
+        public async Task<List<MessageEntity>> GetAll(string userId)
         {
             var msgs = await messages.FindAsync(m => m.SentToId == userId || m.SentById == userId);
 
             return await msgs.ToListAsync();
         }
 
-        public MessageEntity SendMessage(byte[] encryptedText, UserEntity user, UserEntity recipent)
+        public MessageEntity CreateOne(byte[] encryptedText, UserEntity user, UserEntity recipent)
         {
             var msg = new MessageEntity
                 (

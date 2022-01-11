@@ -17,7 +17,7 @@ namespace FilesShareApi
             this.userManager = userManager;
         }
 
-        public async Task<IdentityResult> AddUserToRole(string id, string role)
+        public async Task<IdentityResult> AddUser(string id, string role)
         {
             var user = await userManager.FindByIdAsync(id);
 
@@ -31,14 +31,14 @@ namespace FilesShareApi
             return result;
         }
 
-        public async Task<IdentityResult> CreateRole(string role)
+        public async Task<IdentityResult> CreateOne(string role)
         {
             var result = await roleManager.CreateAsync(new RoleEntity() { Name = role });
 
             return result;
         }
 
-        public IEnumerable<RoleEntity> GetRoles()
+        public IEnumerable<RoleEntity> GetAll()
         {
             return roleManager.Roles;
         }

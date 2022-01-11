@@ -5,14 +5,19 @@ namespace FilesShareApi
 {
     public interface IFileService
     {
-        Task<List<FileEntity>> GetFiles(string id);
-        FileEntity DeleteFile(string id, string creatorId);
-        string AddFile(FileEntity file);
+        Task<List<FileEntity>> GetAll(string id);
 
-        FileEntity GetFileById(string id);
+        IEnumerable<FileEntity> GetAllByAdmin();
 
-        List<FileEntity> GetFilesToDelete();
+        FileEntity DeleteOneByAdmin(string id);
 
-        void SetFileToDelete(FileEntity file);
+        FileEntity DeleteOne(string id, string creatorId);
+        string AddOne(FileEntity file);
+
+        FileEntity GetOneById(string id);
+
+        List<FileEntity> GetToDelete();
+
+        void SetToDelete(FileEntity file);
     }
 }
