@@ -1,7 +1,6 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.S3.Transfer;
-using Microsoft.AspNetCore.Http;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -20,7 +19,7 @@ namespace FilesShareApi
             fileTransferUtility = new TransferUtility(this.s3Client);
         }
 
-        public async void DeleteFileFromS3(string key)
+        public async Task DeleteFileFromS3(string key)
         {
             try
             {
@@ -33,15 +32,7 @@ namespace FilesShareApi
 
             catch (AmazonS3Exception amazonS3Exception)
             {
-                if (amazonS3Exception.ErrorCode != null
-                    && (amazonS3Exception.ErrorCode.Equals("InvalidAccessKeyId") || amazonS3Exception.ErrorCode.Equals("InvalidSecurity")))
-                {
-                    throw new Exception("Check the provided AWS Credentials.");
-                }
-                else
-                {
-                    throw new Exception("Error occurred: " + amazonS3Exception.Message);
-                }
+                throw RecognizeAmazonS3Exception(amazonS3Exception);
             }
         }
 
@@ -60,22 +51,13 @@ namespace FilesShareApi
 
             catch (AmazonS3Exception amazonS3Exception)
             {
-                if (amazonS3Exception.ErrorCode != null
-                    && (amazonS3Exception.ErrorCode.Equals("InvalidAccessKeyId") || amazonS3Exception.ErrorCode.Equals("InvalidSecurity")))
-                {
-                    throw new Exception("Check the provided AWS Credentials.");
-                }
-                else
-                {
-                    throw new Exception("Error occurred: " + amazonS3Exception.Message);
-                }
+                throw RecognizeAmazonS3Exception(amazonS3Exception);
             }
         }
 
-        public async void UploadFileToS3(byte[] file, string key)
+        public async Task UploadFileToS3(byte[] file, string key)
         {   
             await using var newMemoryStream = new MemoryStream(file);
-
             try
             {
                 await fileTransferUtility.UploadAsync(new TransferUtilityUploadRequest
@@ -87,18 +69,23 @@ namespace FilesShareApi
                 });
             }
 
-            catch(AmazonS3Exception amazonS3Exception)
+            catch (AmazonS3Exception amazonS3Exception)
             {
-                if (amazonS3Exception.ErrorCode != null
+                throw RecognizeAmazonS3Exception(amazonS3Exception);
+            }
+        }
+
+        private static Exception RecognizeAmazonS3Exception(AmazonS3Exception amazonS3Exception)
+        {
+            if (amazonS3Exception.ErrorCode != null
                     && (amazonS3Exception.ErrorCode.Equals("InvalidAccessKeyId") || amazonS3Exception.ErrorCode.Equals("InvalidSecurity")))
-                {
-                    throw new Exception("Check the provided AWS Credentials.");
-                }
-                else
-                {
-                    throw new Exception("Error occurred:" + amazonS3Exception.Message);
-                }
-            }        
+            {
+                throw new Exception("Check the provided AWS Credentials.");
+            }
+            else
+            {
+                throw new Exception("Error occurred: " + amazonS3Exception.Message);
+            }
         }
     }
 }

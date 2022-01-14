@@ -37,7 +37,7 @@ namespace FilesShareApi.Controllers
 
             var encryptedText = CryptoService.Encrypt(text);
 
-            var message = chatService.CreateOne(encryptedText, user, recipent);
+            var message = await chatService .CreateOne(encryptedText, user, recipent);
 
             return Ok(MessageMapper.CreateDto(message));
         }

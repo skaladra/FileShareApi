@@ -12,7 +12,7 @@ namespace FilesShareApi
         {
             Id = Guid.NewGuid().ToString();
             Name = fileName;
-            Url = link + $"/download?id={Id}";
+            Url = link + $"?id={Id}";
             CreatedTimeUtc = DateTime.Now;
             CreatedTime = CreatedTimeUtc.ToLocalTime();
             DeleteAfterDownload = deleteOnceDownload;

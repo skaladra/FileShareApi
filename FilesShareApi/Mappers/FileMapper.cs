@@ -2,7 +2,7 @@
 
 namespace FilesShareApi
 {
-    public static class FilesMapper
+    public static class FileMapper
     {
         public static FileDto CreateDto(FileEntity file)
         {

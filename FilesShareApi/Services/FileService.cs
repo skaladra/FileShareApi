@@ -33,9 +33,9 @@ namespace FilesShareApi
             return filesList;
         }
 
-        public FileEntity DeleteOneByAdmin(string id)
+        public async Task<FileEntity> DeleteOneByAdmin(string id)
         {
-            var file = files.FindOneAndDelete(file => file.Id == id);
+            var file = await files.FindOneAndDeleteAsync(file => file.Id == id);
 
             return file;
         }
@@ -46,9 +46,9 @@ namespace FilesShareApi
         /// <param name="id">file's identifier </param>
         /// <param name="creatorId">author's id</param>
         /// <returns></returns>
-        public FileEntity DeleteOne(string id, string creatorId)
+        public async Task<FileEntity> DeleteOne(string id, string creatorId)
         {
-            var file = files.FindOneAndDelete( file => file.CreatorId == creatorId && file.Id == id);
+            var file = await files.FindOneAndDeleteAsync( file => file.CreatorId == creatorId && file.Id == id);
 
             return file;
 
@@ -58,9 +58,11 @@ namespace FilesShareApi
         /// </summary>
         /// <param name="id">file's identifier </param>
         /// <returns></returns>
-        public FileEntity GetOneById(string id)
+        public async Task<FileEntity> GetOneById(string id)
         {
-            return files.Find(file => file.Id == id).First();
+            var file = await files.FindAsync(file => file.Id == id);
+
+            return await file.FirstAsync();
         }
 
         /// <summary>
@@ -68,27 +70,29 @@ namespace FilesShareApi
         /// </summary>
         /// <param name="file"></param>
         /// <returns></returns>
-        public string AddOne(FileEntity file)
+        public async Task<FileEntity> AddOne(FileEntity file)
         {
-            files.InsertOne(file);
+            await files.InsertOneAsync(file);
 
-            return file.Id;
+            return file;
         }
 
         /// <summary>
         /// Get list of files that were marked to be deleted
         /// </summary>
         /// <returns></returns>
-        public List<FileEntity> GetToDelete() 
+        public async Task<List<FileEntity>> GetToDelete() 
         { 
-            return files.Find(file => file.ToDelete == true).ToList(); 
+            var filesToDelete =  await files.FindAsync(file => file.ToDelete == true);
+
+            return await filesToDelete.ToListAsync();
         }
 
         /// <summary>
         /// Mark file to be deleted
         /// </summary>
         /// <param name="file"></param>
-        public void SetToDelete(FileEntity file)
+        public async Task SetToDelete(FileEntity file)
         {
             var toDelete = true;
 
@@ -96,7 +100,7 @@ namespace FilesShareApi
 
             var filter = new BsonDocument("_id", file.Id);
 
-            files.ReplaceOneAsync(filter, fileToDelete);
+            await files.ReplaceOneAsync(filter, fileToDelete);
         }
     }
 }

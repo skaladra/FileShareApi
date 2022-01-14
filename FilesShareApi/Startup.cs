@@ -56,7 +56,7 @@ namespace FilesShareApi
             services.AddRouting();
 
             //Files manager Configuraton
-            services.AddSingleton<FilesManager>();
+            services.AddSingleton<FileManager>();
             services.AddSingleton<IHostedService, ScheduledServices>();
 
             services.AddSwaggerGen(c =>

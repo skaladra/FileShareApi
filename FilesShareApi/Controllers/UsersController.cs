@@ -43,9 +43,9 @@ namespace FilesShareApi
             {
                 var user = await userService.FindOneByEmail(userToCreate.Email);
 
-                await Login(UsersMapper.CreateUserLoginDto(userToCreate.Email, userToCreate.Password));
+                await Login(UserLoginMapper.CreateUserLoginDto(userToCreate.Email, userToCreate.Password));
 
-                return Ok(UsersMapper.CreateUserResponseDto(user));
+                return Ok(UserResponseMapper.CreateUserResponseDto(user));
             }
 
             return StatusCode(400,  $"Registration Failed: {result.Errors} ");
@@ -61,6 +61,11 @@ namespace FilesShareApi
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] UserLoginDto loginParameters)
         {
+            if (this.User.Identity.IsAuthenticated)
+            {
+                return StatusCode(400, "{ Error: You are already registered }");
+            }
+
             var user = await userService.FindOneByEmail(loginParameters.Email);
 
             if (user != null)
@@ -69,7 +74,7 @@ namespace FilesShareApi
 
                 if (result.Succeeded)
                 {
-                    return Ok(UsersMapper.CreateUserResponseDto(user));
+                    return Ok(UserResponseMapper.CreateUserResponseDto(user));
                 }
             }
 
@@ -91,7 +96,7 @@ namespace FilesShareApi
         {
             var users = userService.FindAllByAdmin();
 
-            return Ok(UsersMapper.CreateDtoList(users));
+            return Ok(UserResponseMapper.CreateDtoList(users));
         }
 
         [HttpGet("/users/1")]
@@ -105,7 +110,7 @@ namespace FilesShareApi
                 return Ok();
             }
 
-            return Ok(UsersMapper.CreateUserResponseDto(user));
+            return Ok(UserResponseMapper.CreateUserResponseDto(user));
         }
 
         [HttpDelete("/users/1")]

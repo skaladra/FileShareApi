@@ -7,9 +7,9 @@ namespace FilesShareApi
 {
     public class ScheduledServices : HostedService
     {
-        private readonly FilesManager filesManager;
+        private readonly FileManager filesManager;
 
-        public ScheduledServices(FilesManager filesManager)
+        public ScheduledServices(FileManager filesManager)
         {
             this.filesManager = filesManager;
         }
@@ -23,7 +23,7 @@ namespace FilesShareApi
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                filesManager.DeleteUselessFiles(cancellationToken);
+                await filesManager.DeleteUselessFiles(cancellationToken);
 
                 await Task.Delay(TimeSpan.FromMinutes(10), cancellationToken);
             }

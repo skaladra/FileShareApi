@@ -39,7 +39,7 @@ namespace FilesShareApi
 
             var filesList = await fileServices.GetAll(user.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            return Ok(FilesMapper.CreateListDto(filesList));
+            return Ok(FileMapper.CreateListDto(filesList));
         }
 
         [HttpGet("/files/all")]
@@ -48,14 +48,14 @@ namespace FilesShareApi
         {
             var filesList = fileServices.GetAllByAdmin();
 
-            return Ok(FilesMapper.CreateListDto(filesList));
+            return Ok(FileMapper.CreateListDto(filesList));
         }
 
         [HttpDelete("/files/admin/1")]
         [Authorize(Roles = ("Admin"))]
-        public IActionResult DeleteFileByAdmin([FromQuery] string id)
+        public async Task<IActionResult> DeleteFileByAdmin([FromQuery] string id)
         {
-            var fileToDelete = fileServices.DeleteOneByAdmin(id);
+            var fileToDelete = await fileServices.DeleteOneByAdmin(id);
 
             if (fileToDelete == null)
             {
@@ -64,14 +64,14 @@ namespace FilesShareApi
 
             try
             {
-                s3Service.DeleteFileFromS3(fileToDelete.S3Name);
+                await s3Service.DeleteFileFromS3(fileToDelete.S3Name);
             }
 
             catch (Exception exception)
             {
                 return StatusCode(500, exception.InnerException);
             }
-            return Ok(FilesMapper.CreateDto(fileToDelete));
+            return Ok(FileMapper.CreateDto(fileToDelete));
         }
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace FilesShareApi
         /// <param name="file">file instance</param>
         /// <param name="deleteOnceDownload">defines whether the file should be deleted after download</param>
         /// <returns></returns>
-        [HttpPost("/files")]
+        [HttpPost("/files/1")]
         [Authorize]
         public async Task<IActionResult> UploadFile(IFormFile file, bool deleteOnceDownload = false)
         {
@@ -103,11 +103,11 @@ namespace FilesShareApi
                         deleteOnceDownload
                     );
 
-                s3Service.UploadFileToS3(byteFile, fileInst.S3Name);
+                await s3Service.UploadFileToS3(byteFile, fileInst.S3Name);
 
-                var fileName = fileServices.AddOne(fileInst);
+                var fileResponse = await fileServices.AddOne(fileInst);
 
-                return Ok(FilesMapper.CreateDto(fileInst));
+                return Ok(FileMapper.CreateDto(fileResponse));
             }
 
             catch (Exception exception)
@@ -123,9 +123,9 @@ namespace FilesShareApi
         /// <returns></returns>
         [HttpDelete("/files/1")]
         [Authorize]
-        public IActionResult DeleteFile([FromQuery] string id)
+        public async Task<IActionResult> DeleteFile([FromQuery] string id)
         {
-            var fileToDelete = fileServices.DeleteOne(id, this.User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var fileToDelete = await fileServices.DeleteOne(id, this.User.FindFirstValue(ClaimTypes.NameIdentifier));
 
             if (fileToDelete == null)
             {
@@ -134,14 +134,14 @@ namespace FilesShareApi
 
             try
             {
-                s3Service.DeleteFileFromS3(fileToDelete.S3Name);
+                await s3Service.DeleteFileFromS3(fileToDelete.S3Name);
             }
 
             catch (Exception exception)
             {
                 return StatusCode(500, exception.InnerException);
             }
-            return Ok(FilesMapper.CreateDto(fileToDelete));
+            return Ok(FileMapper.CreateDto(fileToDelete));
         }
 
         [HttpDelete]
@@ -152,10 +152,10 @@ namespace FilesShareApi
 
             foreach (var file in filesToDelete)
             {
-                DeleteFile(file.Id);
+                await DeleteFile(file.Id);
             }
 
-            return Ok(FilesMapper.CreateListDto(filesToDelete));
+            return Ok(FileMapper.CreateListDto(filesToDelete));
         }
 
         /// <summary>
@@ -164,13 +164,17 @@ namespace FilesShareApi
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [HttpGet("download")] 
+        [HttpGet("/files/1")] 
         [AllowAnonymous]
         public async Task<IActionResult> DownloadFile([FromQuery] string id)
         {
-            var file = fileServices.GetOneById(id);
+            FileEntity file;
+            try
+            {
+                file = await fileServices.GetOneById(id);
+            }
 
-            if (file == null)
+            catch( InvalidOperationException )
             {
                 return NotFound();
             }
@@ -181,15 +185,15 @@ namespace FilesShareApi
 
                 if (file.DeleteAfterDownload)
                 {
-                    fileServices.SetToDelete(file);
+                    await fileServices.SetToDelete(file);
                 }
 
                 return File(objectResponse.ResponseStream, objectResponse.Headers.ContentType, file.Name);
             }
 
-            catch(Exception)
+            catch(Exception exception)
             {
-                return StatusCode(500);
+                return StatusCode(500, "{ Error Occured " + $"{exception.InnerException.Message}" + " }");
             }
         }
     }

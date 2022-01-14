@@ -1,7 +1,5 @@
 ﻿using MongoDB.Driver;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace FilesShareApi
@@ -15,9 +13,9 @@ namespace FilesShareApi
             messages = dbClient.GetMessagesCollection();
         }
 
-        public void DeleteOne(string id, string userId)
+        public async Task DeleteOne(string id, string userId)
         {
-            messages.FindOneAndDeleteAsync(m => m.Id == id && m.SentById == userId);
+            await messages.FindOneAndDeleteAsync(m => m.Id == id && m.SentById == userId);
         }
 
         public async Task<List<MessageEntity>> GetAll(string userId)
@@ -27,7 +25,7 @@ namespace FilesShareApi
             return await msgs.ToListAsync();
         }
 
-        public MessageEntity CreateOne(byte[] encryptedText, UserEntity user, UserEntity recipent)
+        public async Task<MessageEntity> CreateOne(byte[] encryptedText, UserEntity user, UserEntity recipent)
         {
             var msg = new MessageEntity
                 (
@@ -37,7 +35,7 @@ namespace FilesShareApi
                 recipent.UserName,
                 encryptedText
                 );
-            messages.InsertOne(msg);
+            await messages.InsertOneAsync(msg);
             return msg;
         }
     }

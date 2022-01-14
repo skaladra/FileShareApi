@@ -2,7 +2,7 @@
 
 namespace FilesShareApi
 {
-    public static class UsersMapper
+    public static class UserResponseMapper
     {
         public static List<UserResponseDto> CreateDtoList(IEnumerable<UserEntity> users)
         {
@@ -23,15 +23,6 @@ namespace FilesShareApi
                 Roles = user.Roles,
                 Id = user.Id,
                 UserName = user.UserName
-            };
-        }
-       
-        public static UserLoginDto CreateUserLoginDto(string email, string password)
-        {
-            return new UserLoginDto()
-            {
-                Email = email,
-                Password = password
             };
         }
     }

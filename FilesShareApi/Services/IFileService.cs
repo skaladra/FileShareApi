@@ -9,15 +9,15 @@ namespace FilesShareApi
 
         IEnumerable<FileEntity> GetAllByAdmin();
 
-        FileEntity DeleteOneByAdmin(string id);
+        Task<FileEntity> DeleteOneByAdmin(string id);
 
-        FileEntity DeleteOne(string id, string creatorId);
-        string AddOne(FileEntity file);
+        Task<FileEntity> DeleteOne(string id, string creatorId);
+        Task<FileEntity> AddOne(FileEntity file);
 
-        FileEntity GetOneById(string id);
+        Task<FileEntity> GetOneById(string id);
 
-        List<FileEntity> GetToDelete();
+        Task<List<FileEntity>> GetToDelete();
 
-        void SetToDelete(FileEntity file);
+        Task SetToDelete(FileEntity file);
     }
 }

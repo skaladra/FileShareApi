@@ -1,11 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace FilesShareApi.Mappers
+﻿namespace FilesShareApi
 {
     public class UserLoginMapper
     {
+        public static UserLoginDto CreateUserLoginDto(string email, string password)
+        {
+            return new UserLoginDto()
+            {
+                Email = email,
+                Password = password
+            };
+        }
     }
 }
