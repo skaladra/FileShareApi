@@ -71,6 +71,7 @@ namespace FilesShareApi
             {
                 return StatusCode(500, exception.InnerException);
             }
+
             return Ok(FileMapper.CreateDto(fileToDelete));
         }
 
@@ -112,7 +113,7 @@ namespace FilesShareApi
 
             catch (Exception exception)
             {
-                return StatusCode(500, exception.InnerException); 
+                return StatusCode(500, "{ " + $"{exception.Message}" + " }");
             }
         }
 
@@ -139,8 +140,9 @@ namespace FilesShareApi
 
             catch (Exception exception)
             {
-                return StatusCode(500, exception.InnerException);
+                return StatusCode(500, "{ " + $"{exception.Message}" + " }");
             }
+
             return Ok(FileMapper.CreateDto(fileToDelete));
         }
 
@@ -193,7 +195,7 @@ namespace FilesShareApi
 
             catch(Exception exception)
             {
-                return StatusCode(500, "{ Error Occured " + $"{exception.InnerException.Message}" + " }");
+                return StatusCode(500, "{ " + $"{exception.Message}" + " }");
             }
         }
     }

@@ -45,7 +45,6 @@ namespace FilesShareApi
                     BucketName = bucketName,
                     Key = key
                 });
-
                 return objectResponse;
             }
 
@@ -58,6 +57,7 @@ namespace FilesShareApi
         public async Task UploadFileToS3(byte[] file, string key)
         {   
             await using var newMemoryStream = new MemoryStream(file);
+
             try
             {
                 await fileTransferUtility.UploadAsync(new TransferUtilityUploadRequest
