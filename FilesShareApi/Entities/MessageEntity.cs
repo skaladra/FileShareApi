@@ -7,27 +7,30 @@ namespace FilesShareApi
     {
         public MessageEntity
             (
+            string id,
             string userId, 
             string userName, 
             string recipentId, 
             string recipentName, 
-            byte[] encryptedText
+            byte[] encryptedText,
+            string chatId,
+            DateTime sentTimeUtc
             )
         {
-            Id = Guid.NewGuid().ToString();
+            Id = id;
             SentById = userId;
             SentByName = userName;
-            SentTimeUtc = DateTime.Now;
-            SentTime = SentTimeUtc.ToLocalTime();
+            SentTimeUtc = sentTimeUtc;
             SentToId = recipentId;
             SentToName = recipentName;
             EncryptedText = encryptedText;
+            ChatId = chatId;
         }
 
         [BsonId]
-        public string Id { get; set;  }
+        public string Id { get; set; }
+        public string ChatId { get; set; }
         public DateTime SentTimeUtc { get; set; }
-        public DateTime SentTime { get; set; } 
         public byte[] EncryptedText { get; set; }
         public string SentById { get; set; }
         public string SentToId { get; set; }

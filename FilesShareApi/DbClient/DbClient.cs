@@ -9,6 +9,7 @@ namespace FilesShareApi
         private readonly string filesConnectionName;
         private readonly string usersConnectionName;
         private readonly string messagesConnectionName;
+        private readonly string chatsConnectionName;
 
         public DbClient(IOptions<FilesShareApiDbConfig> filesDbConfig)
         {
@@ -17,6 +18,7 @@ namespace FilesShareApi
             filesConnectionName = filesDbConfig.Value.Files_Collection_Name;
             usersConnectionName = filesDbConfig.Value.Users_Collection_Name;
             messagesConnectionName = filesDbConfig.Value.Messages_Collection_Name;
+            chatsConnectionName = filesDbConfig.Value.Chats_Collection_Name;
         }
         public IMongoCollection<FileEntity> GetFilesCollection()
         {
@@ -31,6 +33,11 @@ namespace FilesShareApi
         public IMongoCollection<MessageEntity> GetMessagesCollection()
         {
             return dataBase.GetCollection<MessageEntity>(messagesConnectionName);
+        }
+
+        public IMongoCollection<ChatEntity> GetChatsCollection()
+        {
+            return dataBase.GetCollection<ChatEntity>(chatsConnectionName);
         }
     }
 }

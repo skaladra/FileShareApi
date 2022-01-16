@@ -4,9 +4,9 @@ namespace FilesShareApi
 {
     public static class FileMapper
     {
-        public static FileDto CreateDto(FileEntity file)
+        public static FileResponseDto CreateDto(FileEntity file)
         {
-            return new FileDto()
+            return new FileResponseDto()
             {
                 CreatedTime = file.CreatedTimeUtc,
                 Id = file.Id,
@@ -15,9 +15,9 @@ namespace FilesShareApi
             };
         }
 
-        public static List<FileDto> CreateListDto(IEnumerable<FileEntity> files)
+        public static List<FileResponseDto> CreateListDto(IEnumerable<FileEntity> files)
         {
-            var fileList = new List<FileDto>();
+            var fileList = new List<FileResponseDto>();
             foreach (var file in files)
             {
                 fileList.Add(CreateDto(file));

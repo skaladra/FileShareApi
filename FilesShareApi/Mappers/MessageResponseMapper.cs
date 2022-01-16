@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace FilesShareApi
 {
-    public static class MessageMapper
+    public static class MessageResponseMapper
     {
-        public static List<MessageDto> CreateListDto(IEnumerable<MessageEntity> messages)
+        public static List<MessageResponseDto> CreateListDto(IEnumerable<MessageEntity> messages)
         {
-            var messagesList = new List<MessageDto>();
+            var messagesList = new List<MessageResponseDto>();
 
             foreach (var msg in messages)
             {
@@ -18,13 +15,13 @@ namespace FilesShareApi
             return messagesList;
         }
 
-        public static MessageDto CreateDto(MessageEntity message)
+        public static MessageResponseDto CreateDto(MessageEntity message)
         {
             var text = CryptoService.Decrypt(message.EncryptedText);
-            return new MessageDto()
+            return new MessageResponseDto()
             {
                 Id = message.Id,
-                SentTime = message.SentTime,
+                SentTime = message.SentTimeUtc,
                 Text = text,
                 SentByName = message.SentByName,
                 SentToName = message.SentToName

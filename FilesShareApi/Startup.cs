@@ -43,6 +43,7 @@ namespace FilesShareApi
                 );
             services.AddTransient<IRoleService, RoleService>();
             services.AddTransient<IUserService, UserService>();
+            services.AddTransient<IMessageService, MessageService>();
             services.AddTransient<IChatService, ChatService>();
 
             services.ConfigureApplicationCookie(config =>

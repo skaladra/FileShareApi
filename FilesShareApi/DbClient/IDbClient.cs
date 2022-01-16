@@ -7,5 +7,6 @@ namespace FilesShareApi
         IMongoCollection<FileEntity> GetFilesCollection();
         IMongoCollection<UserEntity> GetUsersCollection();
         IMongoCollection<MessageEntity> GetMessagesCollection();
+        IMongoCollection<ChatEntity> GetChatsCollection();
     }
 }

@@ -6,37 +6,44 @@ namespace FilesShareApi
 {
     public class ChatService : IChatService
     {
-        private readonly IMongoCollection<MessageEntity> messages;
+        private readonly IMongoCollection<ChatEntity> chats;
 
         public ChatService(IDbClient dbClient)
         {
-            messages = dbClient.GetMessagesCollection();
+            chats = dbClient.GetChatsCollection();
         }
 
-        public async Task DeleteOne(string id, string userId)
+        public async Task<string> GetOne(List<UserChatEntityDto> interlocutors, MessageChatEntityDto message)
         {
-            await messages.FindOneAndDeleteAsync(m => m.Id == id && m.SentById == userId);
-        }
-
-        public async Task<List<MessageEntity>> GetAll(string userId)
-        {
-            var msgs = await messages.FindAsync(m => m.SentToId == userId || m.SentById == userId);
-
-            return await msgs.ToListAsync();
-        }
-
-        public async Task<MessageEntity> CreateOne(byte[] encryptedText, UserEntity user, UserEntity recipent)
-        {
-            var msg = new MessageEntity
+            var chat = new ChatEntity(interlocutors, message);
+            var chatResult = await chats.FindOneAndUpdateAsync
                 (
-                user.Id.ToString(), 
-                user.UserName, 
-                recipent.Id.ToString(), 
-                recipent.UserName,
-                encryptedText
+                (x => x.FirstInterlocutorId == interlocutors[0].Id 
+                && x.SecondInterlocutorId == interlocutors[1].Id 
+                || x.FirstInterlocutorId == interlocutors[1].Id
+                && x.SecondInterlocutorId == interlocutors[0].Id),
+                Builders<ChatEntity>.Update.Set(y => y.LastMessage, message)
                 );
-            await messages.InsertOneAsync(msg);
-            return msg;
+            if (chatResult == null)
+            {
+                await chats.InsertOneAsync(chat);
+            }
+            return chat.Id;
+        }
+
+        public async Task<List<ChatEntity>> GetAll(string userId)
+        {
+            var chatsCursor = await chats.FindAsync(x => x.FirstInterlocutorId == userId 
+            || x.SecondInterlocutorId == userId);
+            return await chatsCursor.ToListAsync();
+        }
+
+        public async Task DeleteOne(string chatId, string userId)
+        {
+            await chats.FindOneAndDeleteAsync((x => x.Id == chatId 
+            && x.SecondInterlocutorId == userId 
+            || x.FirstInterlocutorId == userId));
+
         }
     }
 }

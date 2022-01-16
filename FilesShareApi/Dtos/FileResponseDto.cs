@@ -5,9 +5,8 @@ namespace FilesShareApi
     /// <summary>
     /// A class to response not all file fields
     /// </summary>
-    public class FileDto
+    public class FileResponseDto
     {
-
         public string Id { get; set; }
 
         public string Name { get; set; }
